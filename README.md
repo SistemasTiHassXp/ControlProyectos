@@ -9,7 +9,7 @@ Portal de seguimiento por áreas, preparado para desplegarse en Render con Supab
 - Cada responsable pertenece a una sola área y solo puede modificar los proyectos de los que es propietario.
 - Proyectos con fecha estimada, estado activo, retrasado, completado o *standby*. En *standby* se registra el área que debe continuar y el motivo.
 - Pasos ilimitados, con notas y un botón para insertar pasos entre los existentes, no únicamente al final.
-- Alertas internas tres días antes de vencer y al vencer, creadas diariamente por un Cron Job de Render.
+- Alertas visuales en el tablero para proyectos que vencen en los próximos tres días o ya vencieron, sin requerir servicios de pago.
 
 ## Configuración de Supabase
 
@@ -32,7 +32,7 @@ Completa los valores de `.env` y abre `http://localhost:10000`.
 ## Desplegar en Render
 
 1. Sube esta carpeta a un repositorio GitHub y en Render usa **New > Blueprint**; Render detectará [`render.yaml`](./render.yaml).
-2. Durante la creación del Blueprint, define `SUPABASE_URL`, `SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY`. Render genera `CRON_SECRET` de forma automática. Para el servicio cron, define `APP_URL` con la URL pública del servicio web, por ejemplo `https://control-proyectos.onrender.com`.
-3. Verifica el endpoint `https://tu-dominio/health`. El trabajo diario de alertas se ejecuta a las 08:00 (hora Perú, UTC-5).
+2. Durante la creación del Blueprint, define `SUPABASE_URL`, `SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY`. Render genera `CRON_SECRET` de forma automática.
+3. Verifica el endpoint `https://tu-dominio/health`. El Blueprint fija el servicio web en el plan gratuito y no crea Cron Jobs.
 
-> Las alertas se guardan en la tabla `alerts`. Para que además lleguen por correo, se puede conectar un proveedor como Resend en el endpoint `/api/jobs/due-alerts`.
+> El endpoint `/api/jobs/due-alerts` y `cron.js` se mantienen para una futura automatización opcional. No se despliegan ni generan costo con este Blueprint.
