@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: control-de-proyectos
+    runtime: node
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: CRON_SECRET
+        generateValue: true
+cronJobs:
+  - name: alertas-proyectos-diarias
+    schedule: "0 13 * * *"
+    runtime: node
+    buildCommand: npm ci
+    startCommand: "node cron.js"
+    envVars:
+      - key: APP_URL
+        sync: false
+      - key: CRON_SECRET
+        sync: false

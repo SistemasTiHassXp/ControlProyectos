@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Control de Proyectos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar"><a class="brand" href="#"><span>▦</span> Control de Proyectos</a><div class="header-actions"><select id="area-filter" aria-label="Área"></select><button id="login-button" class="button ghost">Iniciar sesión</button></div></header>
+    <main class="shell">
+      <section id="mode-banner" class="banner public"><div><strong>Vista gerencial · solo lectura</strong><p>Consulta los avances por área sin registrarte.</p></div><span id="live-clock"></span></section>
+      <section class="metrics"><article><span>PROYECTOS ACTIVOS</span><strong id="metric-projects">—</strong></article><article><span>AVANCE PROMEDIO</span><strong id="metric-progress">—</strong></article><article><span>CON ALERTAS</span><strong id="metric-alerts">—</strong></article></section>
+      <nav class="tabs"><button class="active" data-view="projects">Proyectos</button><button data-view="report">Reporte ejecutivo</button><button id="admin-tab" class="hidden" data-view="admin">Administración</button></nav>
+      <section id="projects-view"><div class="section-title"><div><h1 id="area-title">Proyectos</h1><p id="area-subtitle">Seguimiento operativo</p></div><button id="new-project-button" class="button hidden">+ Nuevo proyecto</button></div><div id="projects" class="project-grid"></div></section>
+      <section id="report-view" class="hidden report"><div class="section-title"><div><h1>Reporte de avances</h1><p id="report-date"></p></div><button class="button ghost" onclick="window.print()">Imprimir / PDF</button></div><div id="report-content"></div></section>
+      <section id="admin-view" class="hidden admin"><div class="section-title"><div><h1>Administración</h1><p>Gestiona las cuentas y áreas del sistema.</p></div></div><nav class="admin-tabs"><button class="active" data-admin-view="users">Usuarios</button><button data-admin-view="areas">Áreas</button></nav><div id="admin-users"><form id="user-form" class="panel admin-form"><h2>Crear usuario</h2><p>El usuario solo podrá crear y modificar proyectos de su área asignada.</p><label>Nombre completo<input name="fullName" required placeholder="Jason Mateo"></label><label>Usuario<input name="username" required placeholder="jmateo" pattern="[A-Za-z0-9._-]{3,40}"></label><label>Contraseña inicial<input name="password" type="password" minlength="8" required></label><label>Área asignada<select name="areaId" id="user-area" required></select></label><label>Rol<select name="role"><option value="member">Responsable</option><option value="manager">Jefatura</option><option value="admin">Administrador</option></select></label><button class="button">Crear usuario</button></form></div><div id="admin-areas" class="hidden"><form id="area-form" class="panel admin-form"><h2>Crear área</h2><p>Las áreas quedan disponibles para asignar responsables y organizar proyectos.</p><label>Nombre de área<input name="name" required placeholder="Ej. Compras"></label><button class="button">Crear área</button></form></div></section>
+    </main>
+    <dialog id="auth-dialog"><form id="auth-form" class="modal"><button class="close" type="button" data-close>×</button><h2>Iniciar sesión</h2><p>Acceso para responsables y administradores.</p><label>Usuario<input name="username" required autocomplete="username" placeholder="Ej. jmateo"></label><label>Contraseña<input type="password" name="password" required autocomplete="current-password"></label><p id="auth-error" class="error"></p><button class="button">Ingresar</button></form></dialog>
+    <dialog id="project-dialog"><form id="project-form" class="modal wide"><button class="close" type="button" data-close>×</button><h2>Nuevo proyecto</h2><label>Nombre del proyecto<input name="title" required></label><label>Descripción<textarea name="description" rows="3" placeholder="Objetivo y alcance"></textarea></label><label>Fecha estimada de término<input name="dueDate" type="date"></label><fieldset><legend>Pasos iniciales</legend><div id="initial-steps"><input placeholder="Paso 1" required></div><button id="add-initial-step" type="button" class="text-button">+ Agregar paso</button></fieldset><button class="button">Crear proyecto</button></form></dialog>
+    <template id="project-template"><article class="project-card"><div class="card-head"><div><span class="status"></span><h2></h2></div><span class="progress-number"></span></div><p class="project-meta"></p><div class="progress"><i></i></div><div class="card-info"></div><div class="steps"></div><button class="text-button add-step hidden">+ Insertar paso</button></article></template>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
