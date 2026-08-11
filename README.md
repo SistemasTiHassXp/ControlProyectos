@@ -32,7 +32,7 @@ Completa los valores de `.env` y abre `http://localhost:10000`.
 ## Desplegar en Render
 
 1. Sube esta carpeta a un repositorio GitHub y en Render usa **New > Blueprint**; Render detectará [`render.yaml`](./render.yaml).
-2. Define `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `APP_URL` y `CRON_SECRET` en Render. Para `APP_URL`, usa la URL pública del servicio web, por ejemplo `https://control-proyectos.onrender.com`.
+2. Durante la creación del Blueprint, define `SUPABASE_URL`, `SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY`. Render genera `CRON_SECRET` de forma automática. Para el servicio cron, define `APP_URL` con la URL pública del servicio web, por ejemplo `https://control-proyectos.onrender.com`.
 3. Verifica el endpoint `https://tu-dominio/health`. El trabajo diario de alertas se ejecuta a las 08:00 (hora Perú, UTC-5).
 
 > Las alertas se guardan en la tabla `alerts`. Para que además lleguen por correo, se puede conectar un proveedor como Resend en el endpoint `/api/jobs/due-alerts`.

@@ -14,14 +14,17 @@ services:
         sync: false
       - key: CRON_SECRET
         generateValue: true
-cronJobs:
-  - name: alertas-proyectos-diarias
-    schedule: "0 13 * * *"
+  - type: cron
+    name: alertas-proyectos-diarias
     runtime: node
+    schedule: "0 13 * * *"
     buildCommand: npm ci
     startCommand: "node cron.js"
     envVars:
       - key: APP_URL
         sync: false
       - key: CRON_SECRET
-        sync: false
+        fromService:
+          type: web
+          name: control-de-proyectos
+          envVarKey: CRON_SECRET
