@@ -58,6 +58,32 @@ app.post('/api/admin/users', requireAdministrator, async (request, response) => 
   response.status(201).json({ user: { id: data.user.id, fullName, username } });
 });
 
+app.post('/api/projects', async (request, response) => {
+  if (!supabaseUrl || !anonKey || !adminClient) return response.status(503).json({ error: 'Supabase no está configurado.' });
+  const token = request.headers.authorization?.replace(/^Bearer\s+/i, '');
+  if (!token) return response.status(401).json({ error: 'Inicia sesión para crear un proyecto.' });
+  const publicClient = createClient(supabaseUrl, anonKey, { auth: { autoRefreshToken: false, persistSession: false } });
+  const { data: { user }, error: authError } = await publicClient.auth.getUser(token);
+  if (authError || !user) return response.status(401).json({ error: 'Sesión inválida.' });
+  const { data: profile, error: profileError } = await adminClient.from('profiles').select('id, area_id, role').eq('id', user.id).single();
+  if (profileError || !profile?.area_id) return response.status(403).json({ error: 'Tu cuenta no tiene un área asignada.' });
+  if (profile.role === 'manager') return response.status(403).json({ error: 'La cuenta de jefatura es solo de consulta.' });
+  const title = String(request.body.title || '').trim();
+  const description = String(request.body.description || '').trim() || null;
+  const dueDate = request.body.dueDate || null;
+  const steps = Array.isArray(request.body.steps) ? request.body.steps.map((step) => String(step).trim()).filter(Boolean) : [];
+  if (title.length < 3 || title.length > 160) return response.status(400).json({ error: 'El proyecto debe tener entre 3 y 160 caracteres.' });
+  if (!steps.length) return response.status(400).json({ error: 'Agrega al menos un paso al proyecto.' });
+  const { data: project, error: projectError } = await adminClient.from('projects').insert({ area_id: profile.area_id, owner_id: profile.id, title, description, due_date: dueDate }).select().single();
+  if (projectError) return response.status(400).json({ error: projectError.message });
+  const { error: stepsError } = await adminClient.from('project_steps').insert(steps.map((step, index) => ({ project_id: project.id, title: step, position: (index + 1) * 1000 })));
+  if (stepsError) {
+    await adminClient.from('projects').delete().eq('id', project.id);
+    return response.status(400).json({ error: stepsError.message });
+  }
+  response.status(201).json({ project });
+});
+
 app.post('/api/jobs/due-alerts', async (request, response) => {
   if (!adminClient || request.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) return response.status(401).json({ error: 'No autorizado.' });
   const today = new Date().toISOString().slice(0, 10);
