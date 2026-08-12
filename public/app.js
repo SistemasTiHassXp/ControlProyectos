@@ -32,7 +32,7 @@ async function initialize() {
 async function load() {
   const [areasResponse, projectsResponse] = await Promise.all([
     state.supabase.from('areas').select('*').order('name'),
-    state.supabase.from('projects').select('*, areas(name), profiles(full_name, username), project_steps(*)').order('created_at', { ascending: false })
+    state.supabase.from('projects').select('*, areas!projects_area_id_fkey(name), profiles(full_name, username), project_steps(*)').order('created_at', { ascending: false })
   ]);
   if (areasResponse.error || projectsResponse.error) return showError(areasResponse.error?.message || projectsResponse.error.message);
   state.areas = areasResponse.data;

@@ -16,6 +16,8 @@ Portal de seguimiento por áreas, preparado para desplegarse en Render con Supab
 1. Crea un proyecto en [Supabase](https://supabase.com) y ejecuta por completo [`supabase/schema.sql`](./supabase/schema.sql) en **SQL Editor**.
 2. Copia `.env.example` como `.env`, completa las claves de Supabase y define el administrador inicial. Para tu caso: `INITIAL_ADMIN_USERNAME=admin`, `INITIAL_ADMIN_PASSWORD=Hass2026@` y el nombre que prefieras.
 3. Ejecuta `npm run bootstrap:admin`. Esto crea el área Administración y el usuario administrador una sola vez.
+
+Si creas el administrador manualmente desde el panel de Supabase, usa [`supabase/create-admin.sql`](./supabase/create-admin.sql) después de crear el usuario técnico `admin@control.local`.
 4. Copia la URL del proyecto, la clave `anon` y la clave `service_role`. La última es secreta: solo se usa en Render, nunca se publica en el navegador.
 
 ## Ejecutar localmente
