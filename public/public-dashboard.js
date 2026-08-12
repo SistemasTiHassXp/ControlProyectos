@@ -1,0 +1,19 @@
+import { client, escapeHtml, formatDate, progress } from './common.js';
+
+const supabase = await client();
+const state = { areas: [], projects: [], activeArea: '' };
+const $ = (selector) => document.querySelector(selector);
+function urgent(project) { return !['completed', 'standby'].includes(project.status) && project.due_date && new Date(`${project.due_date}T23:59:59`) <= new Date(Date.now() + 3 * 86400000); }
+function clock() { $('#live-clock').textContent = new Intl.DateTimeFormat('es-PE', { dateStyle: 'full', timeStyle: 'short' }).format(new Date()); }
+async function load() {
+  const [areaResult, projectResult] = await Promise.all([supabase.from('areas').select('*').order('name'), supabase.from('projects').select('*, profiles(full_name), project_steps(*)').order('created_at', { ascending: false })]);
+  if (areaResult.error || projectResult.error) return $('#projects').innerHTML = '<div class="panel">No se pudo cargar la información.</div>';
+  state.areas = areaResult.data; state.projects = projectResult.data.map((project) => ({ ...project, project_steps: project.project_steps.sort((a, b) => Number(a.position) - Number(b.position)) })); state.activeArea ||= state.areas[0]?.id || ''; render();
+}
+function render() {
+  const area = state.areas.find((item) => item.id === state.activeArea); const projects = state.projects.filter((item) => item.area_id === state.activeArea); const values = projects.map(progress); const average = values.length ? Math.round(values.reduce((sum, item) => sum + item.percent, 0) / values.length) : 0;
+  $('#area-filter').innerHTML = state.areas.map((item) => `<option value="${item.id}">${escapeHtml(item.name)}</option>`).join(''); $('#area-filter').value = state.activeArea; $('#area-title').textContent = `Proyectos · ${area?.name || 'Sin área'}`; $('#area-subtitle').textContent = `${projects.length} proyecto(s) registrados`; $('#metric-projects').textContent = projects.filter((item) => ['active', 'delayed'].includes(item.status)).length; $('#metric-progress').textContent = `${average}%`; $('#metric-alerts').textContent = projects.filter(urgent).length;
+  const container = $('#projects'); container.innerHTML = projects.length ? '' : '<div class="panel">No hay proyectos registrados en esta área.</div>';
+  projects.forEach((project) => { const node = $('#project-template').content.cloneNode(true); const card = node.querySelector('.project-card'); const value = progress(project); const pause = project.status === 'standby' ? ` · En espera: ${project.standby_reason || 'pendiente de otra área'}` : ''; card.querySelector('.status').textContent = project.status === 'standby' ? 'En espera' : project.status === 'completed' ? 'Completado' : project.status === 'delayed' ? 'Retrasado' : 'Activo'; card.querySelector('.status').classList.add(project.status); card.querySelector('h2').textContent = project.title; card.querySelector('.progress-number').textContent = `${value.percent}%`; card.querySelector('.project-meta').textContent = `Responsable: ${project.profiles?.full_name || 'Sin asignar'}`; card.querySelector('.progress i').style.width = `${value.percent}%`; card.querySelector('.card-info').textContent = `${value.done}/${value.total} pasos · Término: ${formatDate(project.due_date)}${pause}`; card.querySelector('.steps').innerHTML = project.project_steps.map((step) => `<div class="step ${step.is_completed ? 'done' : ''}"><span>${step.is_completed ? '✓' : '○'}</span><label>${escapeHtml(step.title)}${step.note ? `<small>${escapeHtml(step.note)}</small>` : ''}</label></div>`).join(''); container.append(node); });
+}
+$('#area-filter').addEventListener('change', (event) => { state.activeArea = event.target.value; render(); }); clock(); setInterval(clock, 1000); load();

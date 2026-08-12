@@ -6,6 +6,7 @@ Portal de seguimiento por áreas, preparado para desplegarse en Render con Supab
 
 - Vista pública por área con indicadores, avances, responsables, fechas y reporte ejecutivo imprimible.
 - Inicio de sesión por usuario y contraseña; Supabase guarda un correo técnico interno que nunca se muestra al usuario.
+- Rutas independientes: `/` para gerencia, `/login.html` para acceso, `/admin.html` para administración y `/workspace.html` para responsables.
 - Cada responsable pertenece a una sola área y solo puede modificar los proyectos de los que es propietario.
 - Proyectos con fecha estimada, estado activo, retrasado, completado o *standby*. En *standby* se registra el área que debe continuar y el motivo.
 - Pasos ilimitados, con notas y un botón para insertar pasos entre los existentes, no únicamente al final.
@@ -18,6 +19,8 @@ Portal de seguimiento por áreas, preparado para desplegarse en Render con Supab
 3. Ejecuta `npm run bootstrap:admin`. Esto crea el área Administración y el usuario administrador una sola vez.
 
 Si creas el administrador manualmente desde el panel de Supabase, usa [`supabase/create-admin.sql`](./supabase/create-admin.sql) después de crear el usuario técnico `admin@control.local`.
+
+Para bases de datos que ya ejecutaron el esquema antes de incluir el responsable externo en espera, ejecuta también [`supabase/add-standby-details.sql`](./supabase/add-standby-details.sql). Al reanudar un proyecto, el tiempo que estuvo en *standby* se suma a su fecha estimada.
 4. Copia la URL del proyecto, la clave `anon` y la clave `service_role`. La última es secreta: solo se usa en Render, nunca se publica en el navegador.
 
 ## Ejecutar localmente

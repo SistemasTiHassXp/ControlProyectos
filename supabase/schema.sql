@@ -28,7 +28,9 @@ create table public.projects (
   status public.project_status not null default 'active',
   due_date date,
   standby_area_id uuid references public.areas on delete set null,
+  standby_contact text,
   standby_reason text,
+  standby_started_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint standby_details check ((status = 'standby') = (standby_area_id is not null))
@@ -92,6 +94,24 @@ create or replace function public.set_updated_at() returns trigger
 language plpgsql as $$ begin new.updated_at = now(); return new; end; $$;
 create trigger projects_updated_at before update on public.projects for each row execute function public.set_updated_at();
 create trigger steps_updated_at before update on public.project_steps for each row execute function public.set_updated_at();
+
+create or replace function public.pause_project_deadline() returns trigger
+language plpgsql as $$
+declare pause_days integer;
+begin
+  if new.status = 'standby' and old.status <> 'standby' then
+    new.standby_started_at = now();
+  elsif old.status = 'standby' and new.status <> 'standby' then
+    if old.standby_started_at is not null and new.due_date is not null then
+      pause_days = ceil(extract(epoch from (now() - old.standby_started_at)) / 86400.0);
+      new.due_date = old.due_date + greatest(pause_days, 0);
+    end if;
+    new.standby_started_at = null;
+  end if;
+  return new;
+end;
+$$;
+create trigger projects_pause_deadline before update on public.projects for each row execute function public.pause_project_deadline();
 
 alter table public.areas enable row level security;
 alter table public.profiles enable row level security;
