@@ -4,6 +4,7 @@ const supabase = await client();
 const { session, profile } = await profileFor(supabase);
 if (!session) location.href = '/login.html';
 if (profile?.role === 'admin') location.href = '/admin.html';
+if (profile && !profile.area_id) { alert('Tu cuenta no tiene un área asignada. Pide al administrador que la configure.'); location.href = '/'; }
 const $ = (selector) => document.querySelector(selector);
 const state = { areas: [], projects: [] };
 async function load() {

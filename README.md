@@ -20,6 +20,8 @@ Portal de seguimiento por áreas, preparado para desplegarse en Render con Supab
 
 Si creas el administrador manualmente desde el panel de Supabase, usa [`supabase/create-admin.sql`](./supabase/create-admin.sql) después de crear el usuario técnico `admin@control.local`.
 
+Si el usuario `admin` fue creado antes y abre el espacio de trabajo en vez de Administración, ejecuta [`supabase/fix-current-admin.sql`](./supabase/fix-current-admin.sql), cierra sesión y vuelve a ingresar.
+
 Para bases de datos que ya ejecutaron el esquema antes de incluir el responsable externo en espera, ejecuta también [`supabase/add-standby-details.sql`](./supabase/add-standby-details.sql). Al reanudar un proyecto, el tiempo que estuvo en *standby* se suma a su fecha estimada.
 4. Copia la URL del proyecto, la clave `anon` y la clave `service_role`. La última es secreta: solo se usa en Render, nunca se publica en el navegador.
 
