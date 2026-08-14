@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
+    "cron": "node cron.js",
     "bootstrap:admin": "node bootstrap-admin.js"
   },
   "dependencies": {

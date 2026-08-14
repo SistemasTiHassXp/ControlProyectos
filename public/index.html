@@ -1,10 +1,339 @@
-<!doctype html>
-<html lang="es">
-  <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Control de Proyectos</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/styles.css"></head>
-  <body>
-    <header class="topbar"><a class="brand" href="/"><span>▦</span> Control de Proyectos</a><div class="header-actions"><select id="area-filter" aria-label="Filtrar por área"></select><a class="button ghost" href="/login.html">Iniciar sesión</a></div></header>
-    <main class="shell executive"><section class="welcome"><div><p class="eyebrow">VISTA GENERAL</p><h1>Seguimiento de proyectos</h1><p>Indicadores y comparación de avance para la gerencia.</p></div><span id="live-clock"></span></section><section class="metrics metrics-five"><article><span>PROYECTOS ACTIVOS</span><strong id="metric-projects">—</strong><small>En ejecución</small></article><article><span>COMPLETADOS</span><strong id="metric-completed">—</strong><small>Historial total</small></article><article><span>AVANCE PROMEDIO</span><strong id="metric-progress">—</strong><small>Según pasos completados</small></article><article><span>EN RETRASO</span><strong id="metric-delayed">—</strong><small>Requieren seguimiento</small></article><article><span>CON ALERTAS</span><strong id="metric-alerts">—</strong><small>Vencen pronto</small></article></section><section class="executive-grid"><article class="panel donut-panel"><div><h2>Proyectos por área</h2><p>Distribución del total registrado</p></div><div class="donut-content"><div id="donut-chart" class="donut"><strong id="donut-total">0</strong><span>proyectos</span></div><div id="area-legend" class="area-legend"></div></div></article><article class="panel progress-panel"><div><h2>Avance promedio por área</h2><p>Ranking por pasos completados, no por cantidad de proyectos.</p></div><div id="area-chart" class="area-chart"></div></article><article class="panel comparison-panel"><div><h2>Comparativa de áreas</h2><p>Completados y en ejecución por cada área.</p></div><div id="comparison-chart" class="comparison-chart"></div></article><article class="panel attention-panel"><div><h2>Proyectos próximos a vencer</h2><p>Atención requerida</p></div><div id="attention-list" class="attention-list"></div></article></section><section class="section-title"><div><h1 id="area-title">Proyectos por área</h1><p id="area-subtitle">Incluye proyectos activos, en espera y completados como historial.</p></div></section><div id="projects" class="project-grid"></div></main>
-    <template id="project-template"><article class="project-card"><div class="card-head"><div><span class="status"></span><h2></h2></div><span class="progress-number"></span></div><p class="project-meta"></p><div class="progress"><i></i></div><div class="card-info"></div><div class="steps"></div></article></template>
-    <script type="module" src="/public-dashboard.js"></script>
-  </body>
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Control de Proyectos</title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com">
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link
+        rel="stylesheet"
+        href="/styles.css">
+
+</head>
+
+<body>
+
+    <header class="topbar">
+
+        <a class="brand" href="/">
+
+            <span>▦</span>
+
+            Control de Proyectos
+
+        </a>
+
+        <div class="header-actions">
+
+            <select
+                id="area-filter"
+                aria-label="Filtrar por área">
+            </select>
+
+            <a
+                class="button ghost"
+                href="/login.html">
+
+                Iniciar sesión
+
+            </a>
+
+        </div>
+
+    </header>
+
+    <main class="shell executive">
+
+        <section class="welcome">
+
+            <div>
+
+                <p class="eyebrow">
+
+                    VISTA GENERAL
+
+                </p>
+
+                <h1>
+
+                    Seguimiento de proyectos
+
+                </h1>
+
+                <p>
+
+                    Indicadores y comparación del avance de cada área.
+
+                </p>
+
+            </div>
+
+            <span id="live-clock"></span>
+
+        </section>
+
+        <section class="metrics metrics-five">
+
+            <article>
+
+                <span>PROYECTOS ACTIVOS</span>
+
+                <strong id="metric-projects">—</strong>
+
+                <small>En ejecución</small>
+
+            </article>
+
+            <article>
+
+                <span>COMPLETADOS</span>
+
+                <strong id="metric-completed">—</strong>
+
+                <small>Historial total</small>
+
+            </article>
+
+            <article>
+
+                <span>AVANCE PROMEDIO</span>
+
+                <strong id="metric-progress">—</strong>
+
+                <small>Según los pasos completados</small>
+
+            </article>
+
+            <article>
+
+                <span>EN RETRASO</span>
+
+                <strong id="metric-delayed">—</strong>
+
+                <small>Requieren seguimiento</small>
+
+            </article>
+
+            <article>
+
+                <span>CON ALERTAS</span>
+
+                <strong id="metric-alerts">—</strong>
+
+                <small>Próximos a vencer</small>
+
+            </article>
+
+        </section>
+
+        <section class="executive-grid">
+
+            <article class="panel donut-panel">
+
+                <div>
+
+                    <h2>
+
+                        Proyectos por área
+
+                    </h2>
+
+                    <p>
+
+                        Distribución del total registrado.
+
+                    </p>
+
+                </div>
+
+                <div class="donut-content">
+
+                    <div
+                        id="donut-chart"
+                        class="donut">
+
+                        <strong id="donut-total">
+
+                            0
+
+                        </strong>
+
+                        <span>
+
+                            proyectos
+
+                        </span>
+
+                    </div>
+
+                    <div
+                        id="area-legend"
+                        class="area-legend">
+                    </div>
+
+                </div>
+
+            </article>
+
+            <article class="panel progress-panel">
+
+                <div>
+
+                    <h2>
+
+                        Avance promedio por área
+
+                    </h2>
+
+                    <p>
+
+                        Ranking según el porcentaje de avance.
+
+                    </p>
+
+                </div>
+
+                <div
+                    id="area-chart"
+                    class="area-chart">
+                </div>
+
+            </article>
+
+            <article class="panel comparison-panel">
+
+                <div>
+
+                    <h2>
+
+                        Comparativa de áreas
+
+                    </h2>
+
+                    <p>
+
+                        Proyectos completados y en ejecución.
+
+                    </p>
+
+                </div>
+
+                <div
+                    id="comparison-chart"
+                    class="comparison-chart">
+                </div>
+
+            </article>
+
+            <article class="panel attention-panel">
+
+                <div>
+
+                    <h2>
+
+                        Próximos vencimientos
+
+                    </h2>
+
+                    <p>
+
+                        Proyectos que requieren atención.
+
+                    </p>
+
+                </div>
+
+                <div
+                    id="attention-list"
+                    class="attention-list">
+                </div>
+
+            </article>
+
+        </section>
+
+        <section class="section-title">
+
+            <div>
+
+                <h1 id="area-title">
+
+                    Proyectos por área
+
+                </h1>
+
+                <p id="area-subtitle">
+
+                    Incluye proyectos activos, en espera y completados.
+
+                </p>
+
+            </div>
+
+        </section>
+
+        <div
+            id="projects"
+            class="project-grid">
+        </div>
+
+    </main>
+
+    <template id="project-template">
+
+        <article class="project-card">
+
+            <div class="card-head">
+
+                <div>
+
+                    <span class="status"></span>
+
+                    <h2></h2>
+
+                </div>
+
+                <span class="progress-number"></span>
+
+            </div>
+
+            <p class="project-meta"></p>
+
+            <div class="progress">
+
+                <i></i>
+
+            </div>
+
+            <div class="card-info"></div>
+
+            <div class="steps"></div>
+
+        </article>
+
+    </template>
+
+    <script
+        type="module"
+        src="/public-dashboard.js">
+    </script>
+
+</body>
+
 </html>

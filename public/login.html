@@ -1,5 +1,110 @@
 <!doctype html>
 <html lang="es">
-  <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Ingresar · Control de Proyectos</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/styles.css"></head>
-  <body class="login-page"><main><a class="brand dark" href="/"><span>▦</span> Control de Proyectos</a><form id="login-form" class="panel login-panel"><h1>Iniciar sesión</h1><p>Ingresa con tu usuario y contraseña.</p><label>Usuario<input name="username" autocomplete="username" required placeholder="Ej. jmateo"></label><label>Contraseña<input type="password" name="password" autocomplete="current-password" required></label><p id="form-error" class="error"></p><button class="button">Ingresar</button></form></main><script type="module" src="/login.js"></script></body>
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Ingresar · Control de Proyectos
+    </title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com">
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link
+        rel="stylesheet"
+        href="/styles.css">
+</head>
+
+<body class="login-page">
+
+    <main>
+
+        <a
+            class="brand dark"
+            href="/">
+
+            <span>▦</span>
+
+            Control de Proyectos
+
+        </a>
+
+        <form
+            id="login-form"
+            class="panel login-panel"
+            novalidate>
+
+            <h1>
+                Iniciar sesión
+            </h1>
+
+            <p>
+                Ingresa con tu usuario y contraseña.
+            </p>
+
+            <div id="session-controls"></div>
+
+            <label>
+
+                Usuario
+
+                <input
+                    name="username"
+                    autocomplete="username"
+                    placeholder="Ej. jmateo"
+                    required>
+
+            </label>
+
+            <label>
+
+                Contraseña
+
+                <input
+                    type="password"
+                    name="password"
+                    autocomplete="current-password"
+                    required>
+
+            </label>
+
+            <p
+                id="form-error"
+                class="error">
+            </p>
+
+            <button
+                type="submit"
+                class="button">
+
+                Ingresar
+
+            </button>
+
+        </form>
+
+    </main>
+
+    <script
+        type="module"
+        src="/login.js">
+    </script>
+
+</body>
+
 </html>
