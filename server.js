@@ -82,6 +82,26 @@ app.post('/api/projects', async (request, response) => {
     return response.status(400).json({ error: stepsError.message });
   }
   response.status(201).json({ project });
+
+// Delete project (owner only)
+app.delete('/api/projects/:id', async (request, response) => {
+  if (!supabaseUrl || !anonKey || !adminClient) return response.status(503).json({ error: 'Supabase no está configurado.' });
+  const token = request.headers.authorization?.replace(/^Bearer\s+/i, '');
+  if (!token) return response.status(401).json({ error: 'Inicia sesión para continuar.' });
+  const publicClient = createClient(supabaseUrl, anonKey, { auth: { autoRefreshToken: false, persistSession: false } });
+  const { data: { user }, error: authError } = await publicClient.auth.getUser(token);
+  if (authError || !user) return response.status(401).json({ error: 'Sesión inválida.' });
+  const id = request.params.id;
+  const { data: project, error: projError } = await adminClient.from('projects').select('id, owner_id').eq('id', id).maybeSingle();
+  if (projError) return response.status(500).json({ error: projError.message });
+  if (!project) return response.status(404).json({ error: 'Proyecto no encontrado.' });
+  if (project.owner_id !== user.id) return response.status(403).json({ error: 'No tienes permiso para eliminar este proyecto.' });
+  const { error: stepsError } = await adminClient.from('project_steps').delete().eq('project_id', id);
+  if (stepsError) return response.status(500).json({ error: stepsError.message });
+  const { error: deleteError } = await adminClient.from('projects').delete().eq('id', id);
+  if (deleteError) return response.status(500).json({ error: deleteError.message });
+  response.status(204).end();
+});
 });
 
 app.post('/api/jobs/due-alerts', async (request, response) => {
