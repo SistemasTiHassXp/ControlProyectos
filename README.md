@@ -2,6 +2,8 @@
 
 Portal de seguimiento por áreas, preparado para desplegarse en Render con Supabase. Las jefaturas pueden revisar los avances sin iniciar sesión; los responsables solo crean o actualizan sus propios proyectos y pasos. El administrador crea áreas y cuentas desde la aplicación.
 
+> Para reiniciar toda la aplicación en un proyecto Supabase de pruebas, ejecuta primero [`supabase/reset-control-proyectos.sql`](./supabase/reset-control-proyectos.sql), luego [`supabase/schema.sql`](./supabase/schema.sql) y finalmente crea el administrador con [`supabase/create-admin.sql`](./supabase/create-admin.sql).
+
 ## Funciones incluidas
 
 - Vista pública por área con indicadores, avances, responsables, fechas y reporte ejecutivo imprimible.
@@ -23,6 +25,8 @@ Si creas el administrador manualmente desde el panel de Supabase, usa [`supabase
 Si el usuario `admin` fue creado antes y abre el espacio de trabajo en vez de Administración, ejecuta [`supabase/fix-current-admin.sql`](./supabase/fix-current-admin.sql), cierra sesión y vuelve a ingresar.
 
 Para bases de datos que ya ejecutaron el esquema antes de incluir el responsable externo en espera, ejecuta también [`supabase/add-standby-details.sql`](./supabase/add-standby-details.sql). Al reanudar un proyecto, el tiempo que estuvo en *standby* se suma a su fecha estimada.
+
+Antes de desplegar la versión con desactivación de cuentas y detalle completo de *standby*, ejecuta [`supabase/v3-workflow-and-accounts.sql`](./supabase/v3-workflow-and-accounts.sql) una sola vez en Supabase.
 4. Copia la URL del proyecto, la clave `anon` y la clave `service_role`. La última es secreta: solo se usa en Render, nunca se publica en el navegador.
 
 ## Ejecutar localmente

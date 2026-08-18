@@ -51,6 +51,13 @@
 
             </a>
 
+            <button id="change-password"
+                class="button ghost">
+
+                Cambiar clave
+
+            </button>
+
             <button id="logout"
                 class="button ghost">
 
@@ -210,6 +217,15 @@
 
     </form>
 
+</dialog>
+<dialog id="password-dialog">
+    <form id="password-form" class="modal">
+        <button class="close" type="button" data-close>×</button>
+        <h1>Cambiar contraseña</h1>
+        <p>Define una nueva contraseña personal de al menos 8 caracteres.</p>
+        <label>Nueva contraseña<input name="password" type="password" minlength="8" required></label>
+        <button type="submit" class="button">Guardar contraseña</button>
+    </form>
 </dialog>
 <!-- Modal para poner un proyecto en espera -->
 

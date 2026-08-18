@@ -33,6 +33,12 @@ create table public.profiles (
 
     role public.user_role not null default 'member',
 
+    is_active boolean not null default true,
+
+    must_change_password boolean not null default false,
+
+    archived_at timestamptz,
+
     created_at timestamptz not null default now()
 );
 create table public.projects (

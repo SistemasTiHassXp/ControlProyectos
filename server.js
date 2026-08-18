@@ -132,6 +132,11 @@ async function authenticate(
     return null;
   }
 
+  if (profile.is_active === false) {
+    response.status(403).json({ error: "Esta cuenta fue desactivada por el administrador." });
+    return null;
+  }
+
   return {
     user,
     profile,
@@ -519,6 +524,50 @@ app.post(
       .json({
         project
       });
+  }
+);
+
+app.patch(
+  "/api/admin/users/:id/password",
+  requireAdministrator,
+  async (request, response) => {
+    const password = String(request.body.password || "");
+    if (password.length < 8) return response.status(400).json({ error: "La contraseña debe tener al menos 8 caracteres." });
+    const userId = request.params.id;
+    if (userId === request.actor.user.id) return response.status(400).json({ error: "No restablezcas tu propia contraseña desde esta pantalla." });
+    const { error: authError } = await adminClient.auth.admin.updateUserById(userId, { password, ban_duration: "none" });
+    if (authError) return response.status(400).json({ error: authError.message });
+    const { error } = await adminClient.from("profiles").update({ is_active: true, must_change_password: true, archived_at: null }).eq("id", userId);
+    if (error) return response.status(400).json({ error: error.message });
+    response.json({ success: true });
+  }
+);
+
+app.delete(
+  "/api/admin/users/:id",
+  requireAdministrator,
+  async (request, response) => {
+    const userId = request.params.id;
+    if (userId === request.actor.user.id) return response.status(400).json({ error: "No puedes desactivar tu propia cuenta." });
+    const { error: authError } = await adminClient.auth.admin.updateUserById(userId, { ban_duration: "876000h" });
+    if (authError) return response.status(400).json({ error: authError.message });
+    const { error } = await adminClient.from("profiles").update({ is_active: false, archived_at: new Date().toISOString() }).eq("id", userId);
+    if (error) return response.status(400).json({ error: error.message });
+    response.json({ success: true });
+  }
+);
+
+app.delete(
+  "/api/admin/areas/:id",
+  requireAdministrator,
+  async (request, response) => {
+    const areaId = request.params.id;
+    const { count, error: countError } = await adminClient.from("projects").select("id", { count: "exact", head: true }).eq("area_id", areaId);
+    if (countError) return response.status(400).json({ error: countError.message });
+    if (count) return response.status(400).json({ error: "No se puede eliminar un área con proyectos históricos. Conserva la trazabilidad." });
+    const { error } = await adminClient.from("areas").delete().eq("id", areaId);
+    if (error) return response.status(400).json({ error: error.message });
+    response.json({ success: true });
   }
 );
 
