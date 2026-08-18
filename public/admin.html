@@ -1,271 +1,63 @@
 <!doctype html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
-
-    <title>
-        Administración · Control de Proyectos
-    </title>
-
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com">
-
-    <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin>
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap"
-        rel="stylesheet">
-
-    <link
-        rel="stylesheet"
-        href="/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración · Control de Proyectos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
 </head>
+<body class="admin-page">
+  <aside class="admin-sidebar">
+    <a class="brand" href="/"><span>▦</span>Control de Proyectos</a>
+    <p class="side-title">MENÚ PRINCIPAL</p>
+    <a class="side-link" href="/"><span>⌂</span>Dashboard</a>
+    <a class="side-link" href="/workspace.html"><span>▣</span>Proyectos</a>
+    <button class="side-link" data-tab="areas"><span>◈</span>Áreas</button>
+    <button class="side-link active" data-tab="users"><span>♙</span>Usuarios</button>
+    <a class="side-link" href="/"><span>▤</span>Reportes</a>
+    <p class="side-title admin-title">ADMINISTRACIÓN</p>
+    <button class="side-link" data-tab="users"><span>⚙</span>Roles y permisos</button>
+    <button class="side-link" data-tab="areas"><span>⚙</span>Configuración</button>
+    <div class="admin-user-chip"><b id="admin-initials">AD</b><span><strong id="admin-name">Administrador</strong><small>Administrador</small></span></div>
+  </aside>
 
-<body>
-
-    <header class="topbar">
-
-        <a class="brand" href="/">
-            <span>▦</span>
-            Control de Proyectos
-        </a>
-
-        <div class="header-actions">
-            <a class="button ghost" href="/">
-                Vista pública
-            </a>
-
-            <button
-                id="logout"
-                class="button ghost">
-                Salir
-            </button>
+  <div class="admin-content">
+    <header class="admin-header"><div></div><div class="header-actions"><span class="admin-role">♙ Administración</span><a class="button ghost dark-button" href="/">Vista pública</a><button id="logout" class="button ghost dark-button">Cerrar sesión</button></div></header>
+    <main class="admin-main">
+      <section id="users-panel">
+        <p class="page-eyebrow">ADMINISTRACIÓN</p>
+        <h1>Crear usuario</h1>
+        <p class="page-description">Gestiona las cuentas que utilizarán el sistema.</p>
+        <section class="admin-notice"><span>✓</span><div><strong>Administrador del sistema</strong><p>Define accesos, áreas asignadas y contraseñas temporales.</p></div></section>
+        <form id="user-form" class="admin-card user-create-form">
+          <div class="card-heading"><h2>Crear usuario</h2><p>El responsable solo podrá administrar proyectos de su área.</p></div>
+          <div class="form-grid">
+            <label>Nombre completo<input name="fullName" required placeholder="Ej. Jason Mateo" autocomplete="name"></label>
+            <label>Usuario<input name="username" required pattern="[A-Za-z0-9._\-]{3,40}" title="Usa entre 3 y 40 letras, números, punto, guion o guion bajo." placeholder="Ej. jmateo" autocomplete="username"></label>
+            <label>Contraseña inicial<input name="password" type="password" minlength="8" required placeholder="Mínimo 8 caracteres" autocomplete="new-password"></label>
+            <label>Confirmar contraseña<input name="passwordConfirmation" type="password" minlength="8" required placeholder="Repite la contraseña" autocomplete="new-password"></label>
+            <label>Área asignada<select name="areaId" id="user-area" required></select></label>
+            <label>Tipo de cuenta<select name="role"><option value="member">Responsable de proyectos</option><option value="manager">Jefatura (solo consulta)</option><option value="admin">Administrador</option></select></label>
+          </div>
+          <p id="user-message" class="form-message" aria-live="polite"></p><button class="button" type="submit">♙ Crear usuario</button>
+        </form>
+        <section class="admin-card table-card">
+          <div class="table-heading"><div><h2>Usuarios creados</h2><p>Administra accesos, contraseñas y cuentas activas.</p></div><label class="search-box">⌕<input id="user-search" placeholder="Buscar usuario"></label></div>
+          <div class="table-wrap"><table><thead><tr><th>USUARIO</th><th>NOMBRE COMPLETO</th><th>ÁREA</th><th>TIPO DE CUENTA</th><th>ESTADO</th><th>FECHA DE CREACIÓN</th><th>ACCIÓN</th></tr></thead><tbody id="users-list"></tbody></table></div>
+        </section>
+      </section>
+      <section id="areas-panel" class="hidden">
+        <p class="page-eyebrow">CONFIGURACIÓN</p><h1>Áreas de trabajo</h1><p class="page-description">Crea y administra las áreas disponibles para los responsables.</p>
+        <div class="areas-layout">
+          <form id="area-form" class="admin-card area-create-form"><div class="card-heading"><h2>Crear área</h2><p>Las áreas se usan al crear usuarios y proyectos.</p></div><label>Nombre del área<input name="name" required placeholder="Ej. Marketing"></label><p id="area-message" class="form-message" aria-live="polite"></p><button class="button" type="submit">＋ Crear área</button></form>
+          <section class="admin-card area-list-card"><div class="card-heading"><h2>Áreas disponibles</h2><p>Solo puedes eliminar áreas sin proyectos históricos.</p></div><div id="areas-list" class="area-list"></div></section>
         </div>
-
-    </header>
-
-    <main class="shell">
-
-        <section class="banner edit">
-
-            <div>
-                <strong id="admin-name">
-                    Administrador del sistema
-                </strong>
-
-                <p>
-                    Gestiona las áreas y las cuentas
-                    que utilizarán el sistema.
-                </p>
-            </div>
-
-        </section>
-
-        <nav class="admin-tabs">
-
-            <button
-                class="active"
-                data-tab="users">
-
-                Usuarios
-
-            </button>
-
-            <button data-tab="areas">
-                Áreas
-            </button>
-
-        </nav>
-
-        <!-- PANEL DE USUARIOS -->
-
-        <section id="users-panel">
-
-            <div class="admin-grid">
-
-                <form
-                    id="user-form"
-                    class="panel admin-form">
-
-                    <h1>
-                        Crear usuario
-                    </h1>
-
-                    <p>
-                        El responsable podrá crear
-                        y actualizar únicamente
-                        los proyectos de su área.
-                    </p>
-
-                    <label>
-
-                        Nombre completo
-
-                        <input
-                            name="fullName"
-                            required
-                            placeholder="Jason Mateo">
-
-                    </label>
-
-                    <label>
-
-                        Usuario
-
-                        <input
-                            name="username"
-                            required
-                            pattern="[A-Za-z0-9._-]{3,40}"
-                            placeholder="jmateo">
-
-                    </label>
-
-                    <label>
-
-                        Contraseña inicial
-
-                        <input
-                            name="password"
-                            type="password"
-                            minlength="8"
-                            required
-                            placeholder="Mínimo 8 caracteres">
-
-                    </label>
-
-                    <label>
-
-                        Área asignada
-
-                        <select
-                            name="areaId"
-                            id="user-area"
-                            required>
-                        </select>
-
-                    </label>
-
-                    <label>
-
-                        Tipo de cuenta
-
-                        <select name="role">
-
-                            <option value="member">
-                                Responsable de proyectos
-                            </option>
-
-                            <option value="manager">
-                                Jefatura (solo consulta)
-                            </option>
-
-                            <option value="admin">
-                                Administrador
-                            </option>
-
-                        </select>
-
-                    </label>
-
-                    <p
-                        id="user-message"
-                        class="form-message">
-                    </p>
-
-                    <button class="button">
-                        Crear usuario
-                    </button>
-
-                </form>
-
-                <section class="panel list-panel">
-
-                    <h2>
-                        Usuarios creados
-                    </h2>
-
-                    <div id="users-list"></div>
-
-                </section>
-
-            </div>
-
-        </section>
-
-        <!-- PANEL DE ÁREAS -->
-
-        <section
-            id="areas-panel"
-            class="hidden">
-
-            <div class="admin-grid">
-
-                <form
-                    id="area-form"
-                    class="panel admin-form">
-
-                    <h1>
-                        Crear área
-                    </h1>
-
-                    <p>
-                        Crea primero las áreas
-                        antes de asignarlas
-                        a los usuarios.
-                    </p>
-
-                    <label>
-
-                        Nombre del área
-
-                        <input
-                            name="name"
-                            required
-                            placeholder="Ej. Marketing">
-
-                    </label>
-
-                    <p
-                        id="area-message"
-                        class="form-message">
-                    </p>
-
-                    <button class="button">
-                        Crear área
-                    </button>
-
-                </form>
-
-                <section class="panel list-panel">
-
-                    <h2>
-                        Áreas disponibles
-                    </h2>
-
-                    <div id="areas-list"></div>
-
-                </section>
-
-            </div>
-
-        </section>
-
+      </section>
     </main>
-
-    <script
-        type="module"
-        src="/admin.js">
-    </script>
-
+  </div>
+  <script type="module" src="/admin.js"></script>
 </body>
-
 </html>

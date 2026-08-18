@@ -347,6 +347,13 @@ enable row level security;
 alter table public.alerts
 enable row level security;
 
+grant usage on schema public to anon, authenticated;
+grant select on public.areas, public.profiles, public.projects, public.project_steps
+to anon, authenticated;
+grant insert, update, delete on public.projects, public.project_steps
+to authenticated;
+grant select, update on public.alerts to authenticated;
+
 create policy "public can read areas"
 on public.areas
 for select

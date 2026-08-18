@@ -52,6 +52,13 @@ alter table public.projects enable row level security;
 alter table public.project_steps enable row level security;
 alter table public.alerts enable row level security;
 
+grant usage on schema public to anon, authenticated;
+grant select on public.areas, public.profiles, public.projects, public.project_steps
+to anon, authenticated;
+grant insert, update, delete on public.projects, public.project_steps
+to authenticated;
+grant select, update on public.alerts to authenticated;
+
 drop policy if exists "public can read areas" on public.areas;
 drop policy if exists "admin manages areas" on public.areas;
 drop policy if exists "profiles readable" on public.profiles;
