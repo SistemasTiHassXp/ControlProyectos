@@ -2,7 +2,7 @@
 
 Portal de seguimiento por áreas, preparado para desplegarse en Render con Supabase. Las jefaturas pueden revisar los avances sin iniciar sesión; los responsables solo crean o actualizan sus propios proyectos y pasos. El administrador crea áreas y cuentas desde la aplicación.
 
-> Para reiniciar toda la aplicación en un proyecto Supabase de pruebas, ejecuta primero [`supabase/reset-control-proyectos.sql`](./supabase/reset-control-proyectos.sql), luego [`supabase/schema.sql`](./supabase/schema.sql) y finalmente crea el administrador con [`supabase/create-admin.sql`](./supabase/create-admin.sql).
+> Para reiniciar toda la aplicación en un proyecto Supabase de pruebas, ejecuta primero [`supabase/reset-control-proyectos.sql`](./supabase/reset-control-proyectos.sql), luego [`supabase/schema.sql`](./supabase/schema.sql). En **Authentication > Users**, crea `admin@control.local` con la contraseña elegida para el administrador. Finalmente ejecuta [`supabase/repair-after-reset.sql`](./supabase/repair-after-reset.sql): este paso crea o corrige el perfil `admin`, sus permisos y las políticas de seguridad necesarias.
 
 ## Funciones incluidas
 
