@@ -1,372 +1,42 @@
 <!doctype html>
-
 <html lang="es">
-
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
-
-    <title>
-        Mis proyectos · Control de Proyectos
-    </title>
-
-    <link rel="preconnect"
-        href="https://fonts.googleapis.com">
-
-    <link rel="preconnect"
-        href="https://fonts.gstatic.com"
-        crossorigin>
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap"
-        rel="stylesheet">
-
-    <link rel="stylesheet"
-        href="/styles.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis proyectos · Control de Proyectos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
 </head>
-
-<body>
-
-    <header class="topbar">
-
-        <a class="brand"
-            href="/">
-
-            <span>▦</span>
-
-            Control de Proyectos
-
-        </a>
-
-        <div class="header-actions">
-
-            <a class="button ghost"
-                href="/">
-
-                Vista pública
-
-            </a>
-
-            <button id="change-password"
-                class="button ghost">
-
-                Cambiar clave
-
-            </button>
-
-            <button id="logout"
-                class="button ghost">
-
-                Salir
-
-            </button>
-
-        </div>
-
-    </header>
-
-    <main class="shell">
-
-        <section class="banner edit">
-
-            <div>
-
-                <strong id="user-name">
-
-                    Mis proyectos
-
-                </strong>
-
-                <p id="user-area-name">
-
-                    Área asignada
-
-                </p>
-
-            </div>
-
-        </section>
-
-        <section class="section-title">
-
-            <div>
-
-                <h1>
-
-                    Mis proyectos
-
-                </h1>
-
-                <p>
-
-                    Crea y actualiza únicamente
-                    los proyectos bajo tu
-                    responsabilidad.
-
-                </p>
-
-            </div>
-
-            <button id="new-project"
-                class="button">
-
-                + Nuevo proyecto
-
-            </button>
-
-        </section>
-
-        <div id="projects"
-            class="project-grid">
-
-        </div>
-
-    </main>
-    <!-- Modal para crear proyectos -->
-
-<dialog id="project-dialog">
-
-    <form id="project-form"
-        class="modal wide">
-
-        <button class="close"
-            type="button"
-            data-close>
-
-            ×
-
-        </button>
-
-        <h1>
-
-            Nuevo proyecto
-
-        </h1>
-
-        <label>
-
-            Nombre del proyecto
-
-            <input
-                name="title"
-                required
-                placeholder="App de reclamaciones">
-
-        </label>
-
-        <label>
-
-            Descripción
-
-            <textarea
-                name="description"
-                rows="3"
-                placeholder="Objetivo del proyecto">
-
-            </textarea>
-
-        </label>
-
-        <label>
-
-            Fecha estimada de término
-
-            <input
-                name="dueDate"
-                type="date">
-
-        </label>
-
-        <fieldset>
-
-            <legend>
-
-                Pasos del proyecto
-
-            </legend>
-
-            <div id="initial-steps">
-
-                <input
-                    placeholder="Paso 1: Informe"
-                    required>
-
-            </div>
-
-            <button
-                id="add-initial-step"
-                type="button"
-                class="text-button">
-
-                + Agregar otro paso
-
-            </button>
-
-        </fieldset>
-
-        <button type="submit"
-            class="button">
-
-            Crear proyecto
-
-        </button>
-
-    </form>
-
-</dialog>
-<dialog id="password-dialog">
-    <form id="password-form" class="modal">
-        <button class="close" type="button" data-close>×</button>
-        <h1>Cambiar contraseña</h1>
-        <p>Define una nueva contraseña personal de al menos 8 caracteres.</p>
-        <label>Nueva contraseña<input name="password" type="password" minlength="8" required></label>
-        <button type="submit" class="button">Guardar contraseña</button>
-    </form>
-</dialog>
-<!-- Modal para poner un proyecto en espera -->
-
-<dialog id="standby-dialog">
-
-    <form id="standby-form"
-        class="modal">
-
-        <button class="close"
-            type="button"
-            data-close>
-
-            ×
-
-        </button>
-
-        <h1>
-
-            Colocar proyecto en espera
-
-        </h1>
-
-        <p>
-
-            El proyecto seguirá perteneciendo al
-            responsable original, pero quedará
-            registrado que otra área debe realizar
-            una actividad antes de continuar.
-
-        </p>
-
-        <input
-            type="hidden"
-            name="projectId">
-
-        <label>
-
-            Área que debe continuar el proceso
-
-            <select
-                name="areaId"
-                id="standby-area"
-                required>
-
-            </select>
-
-        </label>
-
-        <label>
-
-            Persona responsable
-
-            <input
-                name="contact"
-                required
-                placeholder="Ej.: María Fernández">
-
-        </label>
-
-        <label>
-
-            Motivo de la espera
-
-            <textarea
-                name="reason"
-                rows="3"
-                required
-                placeholder="Pendiente de validación del área de Marketing">
-
-            </textarea>
-
-        </label>
-
-        <label>
-
-            ¿Qué debe hacer el área para continuar?
-
-            <textarea
-                name="instructions"
-                rows="4"
-                required
-                placeholder="Ej.: Aprobar el diseño final y enviar la confirmación al responsable del proyecto">
-
-            </textarea>
-
-        </label>
-
-        <button
-            type="submit"
-            class="button">
-
-            Poner en espera
-
-        </button>
-
-    </form>
-
-</dialog>
-<!-- Plantilla de las tarjetas -->
-
-<template id="project-template">
-
-    <article class="project-card">
-
-        <div class="card-head">
-
-            <div>
-
-                <span class="status"></span>
-
-                <h2></h2>
-
-            </div>
-
-            <span class="progress-number"></span>
-
-        </div>
-
-        <p class="project-meta"></p>
-
-        <div class="progress">
-
-            <i></i>
-
-        </div>
-
-        <div class="card-info"></div>
-
-        <div class="steps"></div>
-
-        <div class="card-actions"></div>
-
-    </article>
-
-</template>
-
-<script
-    type="module"
-    src="/workspace.js">
-</script>
-
+<body class="workspace-page">
+  <header class="workspace-topbar">
+    <a class="brand" href="/"><span>▦</span>Control de Proyectos</a>
+    <div class="header-actions"><a class="button ghost" href="/">◎ Vista pública</a><button id="change-password" class="button ghost">♙ Cambiar clave</button><button id="logout" class="button ghost">⇥ Salir</button></div>
+  </header>
+  <main class="workspace-main">
+    <section class="workspace-profile"><div class="workspace-avatar" id="user-initials">US</div><div><h2 id="user-name">Mis proyectos</h2><p id="user-area-name">Área asignada</p></div><span class="user-role">Responsable de proyectos</span><time id="live-clock"></time></section>
+    <section class="workspace-heading"><div><h1>Mis proyectos</h1><p>Crea y actualiza únicamente los proyectos bajo tu responsabilidad.</p></div><button id="new-project" class="button">＋ Nuevo proyecto</button></section>
+    <section class="workspace-metrics">
+      <article class="active"><span>▱</span><div><strong id="metric-active">0</strong><small>Activos</small></div></article>
+      <article class="complete"><span>✓</span><div><strong id="metric-completed">0</strong><small>Completados</small></div></article>
+      <article class="standby"><span>◷</span><div><strong id="metric-standby">0</strong><small>En espera</small></div></article>
+      <article class="delayed"><span>⚠</span><div><strong id="metric-delayed">0</strong><small>Con retraso</small></div></article>
+    </section>
+    <section class="workspace-board">
+      <div class="projects-column">
+        <div class="workspace-filters"><label class="search-project">⌕<input id="project-search" placeholder="Buscar proyecto..."></label><select id="status-filter"><option value="all">Todos los estados</option><option value="active">Activos</option><option value="standby">En espera</option><option value="completed">Completados</option><option value="delayed">Con retraso</option></select><select id="project-order"><option value="recent">Ordenar por: Más recientes</option><option value="progress">Ordenar por: Mayor avance</option><option value="due">Ordenar por: Fecha límite</option></select></div>
+        <div id="projects" class="project-grid"></div>
+      </div>
+      <aside class="workspace-help"><h2>¿Cómo funciona?</h2><div><b class="blue">＋</b><p><strong>Crea un nuevo proyecto</strong><span>Define el nombre, descripción, fecha límite y sus pasos.</span></p></div><div><b class="green">✓</b><p><strong>Actualiza el avance</strong><span>Marca los pasos completados para mantener el progreso al día.</span></p></div><div><b class="amber">Ⅱ</b><p><strong>Pausa si es necesario</strong><span>Indica el área, contacto y motivo si depende de otra información.</span></p></div><div><b class="purple">◎</b><p><strong>Cumple tus objetivos</strong><span>Completa los pasos y finaliza el proyecto con éxito.</span></p></div><section class="help-note"><b>◉</b><p><strong>Importante</strong><span id="assigned-area-note">Los proyectos quedarán asociados a tu área asignada.</span></p></section></aside>
+    </section>
+  </main>
+
+  <dialog id="project-dialog"><form id="project-form" class="modal wide"><button class="close" type="button" data-close>×</button><h1>Nuevo proyecto</h1><label>Nombre del proyecto<input name="title" required placeholder="App de reclamaciones"></label><label>Descripción<textarea name="description" rows="3" placeholder="Objetivo del proyecto"></textarea></label><label>Fecha estimada de término<input name="dueDate" type="date"></label><fieldset><legend>Pasos del proyecto</legend><div id="initial-steps"><input placeholder="Paso 1: Informe" required></div><button id="add-initial-step" type="button" class="text-button">＋ Agregar otro paso</button></fieldset><button type="submit" class="button">Crear proyecto</button></form></dialog>
+  <dialog id="password-dialog"><form id="password-form" class="modal"><button class="close" type="button" data-close>×</button><h1>Cambiar contraseña</h1><p>Define una nueva contraseña personal de al menos 8 caracteres.</p><label>Nueva contraseña<input name="password" type="password" minlength="8" required></label><button type="submit" class="button">Guardar contraseña</button></form></dialog>
+  <dialog id="standby-dialog"><form id="standby-form" class="modal"><button class="close" type="button" data-close>×</button><h1>Colocar proyecto en espera</h1><p>El proyecto seguirá bajo tu responsabilidad, pero registrará qué área debe completar una actividad para continuar.</p><input type="hidden" name="projectId"><label>Área que debe continuar<select name="areaId" id="standby-area" required></select></label><label>Persona responsable<input name="contact" required placeholder="Ej.: María Fernández"></label><label>Motivo de la espera<textarea name="reason" rows="3" required placeholder="Pendiente de validación del área de Marketing"></textarea></label><label>Instrucciones para continuar<textarea name="instructions" rows="4" required placeholder="Ej.: Aprobar el diseño final y enviar la confirmación."></textarea></label><button type="submit" class="button">Poner en espera</button></form></dialog>
+
+  <template id="project-template"><article class="project-card"><div class="card-head"><div><span class="status"></span><h2></h2></div><span class="progress-number"></span></div><p class="project-meta"></p><div class="progress"><i></i></div><div class="card-info"></div><div class="steps"></div><div class="card-actions"></div></article></template>
+  <script type="module" src="/workspace.js"></script>
 </body>
-
 </html>
