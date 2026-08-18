@@ -257,6 +257,39 @@ async function requireAdministrator(
   next();
 }
 
+app.patch(
+  "/api/account/password",
+  async (request, response) => {
+    const auth = await authenticate(request, response);
+    if (!auth) return;
+
+    const password = String(request.body.password || "");
+    if (password.length < 8) {
+      return response.status(400).json({
+        error: "La contraseña debe tener al menos 8 caracteres."
+      });
+    }
+
+    const { error: authError } = await adminClient.auth.admin.updateUserById(
+      auth.user.id,
+      { password }
+    );
+    if (authError) {
+      return response.status(400).json({ error: authError.message });
+    }
+
+    const { error: profileError } = await adminClient
+      .from("profiles")
+      .update({ must_change_password: false })
+      .eq("id", auth.user.id);
+    if (profileError) {
+      return response.status(400).json({ error: profileError.message });
+    }
+
+    response.json({ success: true });
+  }
+);
+
 app.post(
   "/api/admin/users",
   requireAdministrator,

@@ -97,7 +97,7 @@ async function deleteProject(project) { if (!confirm(`¿Eliminar “${project.ti
 $('#logout').addEventListener('click', () => signOut(supabase));
 document.querySelectorAll('[data-close]').forEach((button) => button.addEventListener('click', () => button.closest('dialog').close()));
 $('#change-password').addEventListener('click', () => $('#password-dialog').showModal());
-$('#password-form').addEventListener('submit', async (event) => { event.preventDefault(); const form = event.currentTarget; const password = new FormData(form).get('password'); const { error } = await supabase.auth.updateUser({ password }); if (error) return alert(error.message); await supabase.from('profiles').update({ must_change_password: false }).eq('id', profile.id); $('#password-dialog').close(); form.reset(); alert('Contraseña actualizada correctamente.'); });
+$('#password-form').addEventListener('submit', async (event) => { event.preventDefault(); const form = event.currentTarget; const password = new FormData(form).get('password'); try { await api('/api/account/password', { method: 'PATCH', body: JSON.stringify({ password }) }); $('#password-dialog').close(); form.reset(); profile.must_change_password = false; alert('Contraseña actualizada correctamente.'); } catch (error) { alert(error.message); } });
 $('#new-project').addEventListener('click', () => $('#project-dialog').showModal());
 $('#add-initial-step').addEventListener('click', () => $('#initial-steps').insertAdjacentHTML('beforeend', '<input placeholder="Paso adicional">'));
 ['#project-search', '#status-filter', '#project-order'].forEach((selector) => $(selector).addEventListener(selector === '#project-search' ? 'input' : 'change', render));
