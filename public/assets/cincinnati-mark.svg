@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" role="img" aria-labelledby="title">
+  <title id="title">Grupo Cincinnati</title>
+  <rect width="88" height="88" rx="18" fill="#ffffff"/>
+  <path fill="#0e1d37" d="M20 25h48v8H20zm0 15h48v8H20zm0 15h32v8H20z"/>
+  <path fill="#2d6dff" d="M57 55h11v8H57z"/>
+  <text x="44" y="20" text-anchor="middle" fill="#526278" font-family="Arial,sans-serif" font-size="7" font-weight="700">GRUPO</text>
+</svg>
