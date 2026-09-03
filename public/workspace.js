@@ -3,7 +3,7 @@ import { client, escapeHtml, formatDate, profileFor, progress, signOut } from '.
 const supabase = await client();
 const { session, profile } = await profileFor(supabase);
 const $ = (selector) => document.querySelector(selector);
-const state = { areas: [], projects: [], observationCounts: {} };
+const state = { areas: [], projects: [], areaProjects: [], observationCounts: {} };
 
 if (!session) location.href = '/login.html';
 if (profile?.role === 'admin') location.href = '/admin.html';
@@ -16,10 +16,11 @@ function isCompleted(project) { return project.status === 'completed' || progres
 async function api(url, options = {}) { const response = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}`, ...(options.headers || {}) } }); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.error || 'No se pudo completar la acción.'); return data; }
 
 async function load() {
-  const [areasResult, projectsResult, observationsResult] = await Promise.all([supabase.from('areas').select('*').order('name'), supabase.from('projects').select('*, project_steps(*)').eq('owner_id', profile.id).order('created_at', { ascending: false }), supabase.from('project_observations').select('project_id')]);
-  if (areasResult.error || projectsResult.error || observationsResult.error) return alert(areasResult.error?.message || projectsResult.error?.message || observationsResult.error.message);
+  const [areasResult, projectsResult, areaProjectsResult, observationsResult] = await Promise.all([supabase.from('areas').select('*').order('name'), supabase.from('projects').select('*, project_steps(*)').eq('owner_id', profile.id).order('created_at', { ascending: false }), supabase.from('projects').select('*, profiles(full_name), project_steps(*)').eq('area_id', profile.area_id), supabase.from('project_observations').select('project_id')]);
+  if (areasResult.error || projectsResult.error || areaProjectsResult.error || observationsResult.error) return alert(areasResult.error?.message || projectsResult.error?.message || areaProjectsResult.error?.message || observationsResult.error.message);
   state.areas = areasResult.data || [];
   state.projects = (projectsResult.data || []).map((project) => ({ ...project, project_steps: (project.project_steps || []).sort((first, second) => Number(first.position) - Number(second.position)) }));
+  state.areaProjects = (areaProjectsResult.data || []).map((project) => ({ ...project, project_steps: (project.project_steps || []).sort((first, second) => Number(first.position) - Number(second.position)) }));
   state.observationCounts = (observationsResult.data || []).reduce((counts, observation) => ({ ...counts, [observation.project_id]: (counts[observation.project_id] || 0) + 1 }), {});
   $('#user-name').textContent = profile.full_name;
   $('#user-initials').textContent = initials(profile.full_name);
@@ -29,11 +30,25 @@ async function load() {
   $('#assigned-area-note').textContent = 'Tus proyectos quedan bajo tu cargo y solo tú puedes administrarlos.';
   $('#standby-area').innerHTML = state.areas.filter((area) => area.id !== profile.area_id).map((area) => `<option value="${area.id}">${escapeHtml(area.name)}</option>`).join('') || '<option value="">No hay otra área disponible</option>';
   updateMetrics();
+  renderAreaReport();
   const overdue = state.projects.filter((project) => project.status !== 'completed' && project.due_date && new Date(`${project.due_date}T23:59:59`) < new Date());
   $('#member-urgent').innerHTML = overdue.length ? overdue.slice(0, 5).map((project) => `<p><strong>${escapeHtml(project.title)}</strong><span>Venció: ${formatDate(project.due_date)}</span></p>`).join('') : '<p>Todo al día. No hay pendientes críticos.</p>';
   const upcoming = state.projects.filter((project) => project.status !== 'completed' && project.due_date && new Date(`${project.due_date}T23:59:59`) >= new Date()).slice(0, 5);
   $('#member-soon').innerHTML = upcoming.length ? upcoming.map((project) => `<p><strong>${escapeHtml(project.title)}</strong><span>Vence: ${formatDate(project.due_date)}</span></p>`).join('') : '<p>Nada programado.</p>';
   render();
+}
+
+function renderAreaReport() {
+  const projects = state.areaProjects;
+  const overdue = projects.filter((project) => project.status !== 'completed' && project.due_date && new Date(`${project.due_date}T23:59:59`) < new Date()).length;
+  $('#area-report-title').textContent = `Dashboard · ${areaName(profile.area_id)}`;
+  $('#area-active').textContent = projects.filter((project) => project.status === 'active').length;
+  $('#area-completed').textContent = projects.filter(isCompleted).length;
+  $('#area-delayed').textContent = projects.filter((project) => project.status === 'delayed').length;
+  $('#area-overdue').textContent = overdue;
+  const people = projects.reduce((list, project) => { const name = project.profiles?.full_name || 'Sin responsable'; const current = list.find((person) => person.name === name); const value = progress(project).percent; if (current) { current.projects += 1; current.total += value; } else list.push({ name, projects: 1, total: value }); return list; }, []).map((person) => ({ ...person, average: Math.round(person.total / person.projects) }));
+  $('#team-progress').innerHTML = people.map((person) => `<div class="team-row"><span>${escapeHtml(person.name)}</span><i><b style="width:${person.average}%"></b></i><strong>${person.average}%</strong></div>`).join('') || '<p class="muted">No hay proyectos registrados.</p>';
+  $('#team-summary').innerHTML = people.map((person) => `<div class="team-person"><b>👤</b><span><strong>${escapeHtml(person.name)}</strong><small>${person.projects} proyecto(s) · ${person.average}% de avance</small></span></div>`).join('') || '<p class="muted">No hay responsables registrados.</p>';
 }
 
 function updateMetrics() {
@@ -109,7 +124,8 @@ async function deleteProject(project) { if (!confirm(`¿Eliminar “${project.ti
 $('#logout').addEventListener('click', () => signOut(supabase));
 document.querySelectorAll('[data-close]').forEach((button) => button.addEventListener('click', () => button.closest('dialog').close()));
 document.querySelectorAll('[data-member-observations-close]').forEach((button) => button.addEventListener('click', () => $('#member-observations-dialog').close()));
-$('#change-password').addEventListener('click', () => $('#password-dialog').showModal());
+$('#settings-toggle').addEventListener('click', () => $('#settings-menu').classList.toggle('hidden'));
+$('#change-password').addEventListener('click', () => { $('#settings-menu').classList.add('hidden'); $('#password-dialog').showModal(); });
 $('#password-form').addEventListener('submit', async (event) => { event.preventDefault(); const form = event.currentTarget; const password = new FormData(form).get('password'); try { await api('/api/account/password', { method: 'PATCH', body: JSON.stringify({ password }) }); $('#password-dialog').close(); form.reset(); profile.must_change_password = false; alert('Contraseña actualizada correctamente.'); } catch (error) { alert(error.message); } });
 $('#new-project').addEventListener('click', () => $('#project-dialog').showModal());
 document.querySelectorAll('[data-member-view]').forEach((button) => button.addEventListener('click', () => { const view = button.dataset.memberView; document.querySelectorAll('[data-member-view]').forEach((item) => item.classList.toggle('active', item === button)); document.body.className = `workspace-page member-page member-view-${view}`; }));
