@@ -86,7 +86,8 @@ function render() {
     });
     const actions = card.querySelector('.card-actions');
     const readyToComplete = value.total > 0 && value.done === value.total && project.status !== 'completed';
-    actions.innerHTML = `<button class="text-button state-button">${project.status === 'standby' ? 'Reanudar proyecto' : 'Poner en espera'}</button><button class="text-button insert-button">＋ Agregar paso</button><button class="text-button complete-button" ${readyToComplete ? '' : 'disabled'}>${project.status === 'completed' ? 'Proyecto finalizado' : 'Marcar como completado'}</button><button class="text-button delete-button">Eliminar proyecto</button>`;
+    actions.innerHTML = `<button class="text-button observation-button">Observaciones</button><button class="text-button state-button">${project.status === 'standby' ? 'Reanudar proyecto' : 'Poner en espera'}</button><button class="text-button insert-button">＋ Agregar paso</button><button class="text-button complete-button" ${readyToComplete ? '' : 'disabled'}>${project.status === 'completed' ? 'Proyecto finalizado' : 'Marcar como completado'}</button><button class="text-button delete-button">Eliminar proyecto</button>`;
+    actions.querySelector('.observation-button').addEventListener('click', () => viewObservations(project));
     actions.querySelector('.state-button').addEventListener('click', () => project.status === 'standby' ? resumeProject(project) : openStandby(project));
     actions.querySelector('.insert-button').addEventListener('click', () => insertStep(project));
     actions.querySelector('.complete-button').addEventListener('click', () => completeProject(project));
@@ -101,6 +102,7 @@ async function insertStep(project, nextPosition) { const title = prompt('Nombre 
 function openStandby(project) { const form = $('#standby-form'); form.reset(); form.querySelector('[name="projectId"]').value = project.id; $('#standby-dialog').showModal(); }
 async function resumeProject(project) { try { await api(`/api/projects/${project.id}/resume`, { method: 'POST' }); await load(); } catch (error) { alert(error.message); } }
 async function completeProject(project) { if (project.status === 'completed') return; if (!confirm(`¿Marcar “${project.title}” como completado?`)) return; try { await api(`/api/projects/${project.id}/complete`, { method: 'POST' }); await load(); } catch (error) { alert(error.message); } }
+async function viewObservations(project) { try { const result = await api(`/api/projects/${project.id}/observations`); const content = result.observations.map((item) => `${item.profiles?.full_name || 'Gerencia'} · ${new Date(item.created_at).toLocaleString('es-PE')}\n${item.message}`).join('\n\n') || 'No hay observaciones de Gerencia.'; alert(`Observaciones · ${project.title}\n\n${content}`); } catch (error) { alert(error.message); } }
 async function deleteProject(project) { if (!confirm(`¿Eliminar “${project.title}”? Esta acción no se puede deshacer.`)) return; try { await api(`/api/projects/${project.id}`, { method: 'DELETE' }); await load(); } catch (error) { alert(error.message); } }
 
 $('#logout').addEventListener('click', () => signOut(supabase));

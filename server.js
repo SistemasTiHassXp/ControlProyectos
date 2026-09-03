@@ -261,6 +261,44 @@ async function requireAdministrator(
   next();
 }
 
+async function requireManagement(request, response, next) {
+  const auth = await authenticate(request, response);
+  if (!auth) return;
+  if (!["manager", "executive", "admin"].includes(auth.profile.role)) return response.status(403).json({ error: "Solo Gerencia o Jefatura puede realizar esta acción." });
+  request.actor = auth;
+  next();
+}
+
+app.get("/api/projects/:id/observations", async (request, response) => {
+  const auth = await authenticate(request, response);
+  if (!auth) return;
+  const { data, error } = await adminClient.from("project_observations").select("*, profiles(full_name)").eq("project_id", request.params.id).order("created_at", { ascending: false });
+  if (error) return response.status(400).json({ error: error.message });
+  response.json({ observations: data || [] });
+});
+
+app.post("/api/projects/:id/observations", requireManagement, async (request, response) => {
+  const message = String(request.body.message || "").trim();
+  if (message.length < 2) return response.status(400).json({ error: "Escribe una observación." });
+  const { error } = await adminClient.from("project_observations").insert({ project_id: request.params.id, author_id: request.actor.profile.id, message });
+  if (error) return response.status(400).json({ error: error.message });
+  response.status(201).json({ success: true });
+});
+
+app.patch("/api/projects/:id/priority", requireManagement, async (request, response) => {
+  const { error } = await adminClient.from("projects").update({ is_urgent: Boolean(request.body.isUrgent) }).eq("id", request.params.id);
+  if (error) return response.status(400).json({ error: error.message });
+  response.json({ success: true });
+});
+
+app.patch("/api/projects/:id/due-date", requireManagement, async (request, response) => {
+  const dueDate = String(request.body.dueDate || "");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return response.status(400).json({ error: "Indica una fecha válida para la prórroga." });
+  const { error } = await adminClient.from("projects").update({ due_date: dueDate }).eq("id", request.params.id);
+  if (error) return response.status(400).json({ error: error.message });
+  response.json({ success: true });
+});
+
 app.patch(
   "/api/account/password",
   async (request, response) => {

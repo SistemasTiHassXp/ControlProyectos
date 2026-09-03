@@ -233,7 +233,9 @@ function render() {
     ).length;
   const overdue = state.projects.filter((project) => project.status !== "completed" && project.due_date && new Date(`${project.due_date}T23:59:59`) < new Date());
   $("#urgent-summary").innerHTML = overdue.length ? overdue.slice(0, 5).map((project) => `<p><strong>${escapeHtml(project.title)}</strong><span>Venció: ${formatDate(project.due_date)}</span></p>`).join("") : "<p>Todo al día. No hay pendientes críticos.</p>";
-  const upcoming = state.projects.filter(urgent);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const upcoming = state.projects.filter((project) => project.status !== "completed" && project.due_date && new Date(`${project.due_date}T12:00:00`) >= today && urgent(project));
   $("#soon-summary").innerHTML = upcoming.length ? upcoming.slice(0, 5).map((project) => `<p><strong>${escapeHtml(project.title)}</strong><span>Vence: ${formatDate(project.due_date)}</span></p>`).join("") : "<p>Nada programado.</p>";
      const colors = [
     "#6366f1",
@@ -627,9 +629,22 @@ function render() {
     const preview = project.project_steps.slice(0, 2).map((step) => `<div class="step ${step.is_completed ? "done" : ""}"><span>${step.is_completed ? "✓" : "○"}</span><label>${escapeHtml(step.title)}</label></div>`).join("");
     card.querySelector(".steps").innerHTML = standbyInfo + preview + (project.project_steps.length > 2 || project.description ? `<details class="project-details"><summary>Ver descripción y todos los pasos (${project.project_steps.length})</summary>${project.description ? `<p>${escapeHtml(project.description)}</p>` : ""}${stepsMarkup}</details>` : "");
 
+    const actions = document.createElement("div");
+    actions.className = "card-actions management-actions";
+    actions.innerHTML = `<button class="text-button observation-button">Observaciones</button><button class="text-button urgent-button">${project.is_urgent ? "Quitar urgencia" : "Marcar urgente"}</button><button class="text-button extension-button">Dar prórroga</button>`;
+    actions.querySelector(".observation-button").addEventListener("click", () => observations(project));
+    actions.querySelector(".urgent-button").addEventListener("click", () => setUrgent(project));
+    actions.querySelector(".extension-button").addEventListener("click", () => extendDueDate(project));
+    card.append(actions);
+
     container.append(node);
   });
 }
+
+async function managementApi(url, options = {}) { const response = await fetch(url, { ...options, headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` } }); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.error || "No se pudo completar la acción."); return data; }
+async function observations(project) { try { const result = await managementApi(`/api/projects/${project.id}/observations`); const history = result.observations.map((item) => `${item.profiles?.full_name || "Gerencia"} · ${new Date(item.created_at).toLocaleString("es-PE")}\n${item.message}`).join("\n\n") || "Sin observaciones."; const message = prompt(`Observaciones de ${project.title}:\n\n${history}\n\nEscribe una nueva observación (Cancelar para solo ver):`); if (!message?.trim()) return; await managementApi(`/api/projects/${project.id}/observations`, { method: "POST", body: JSON.stringify({ message }) }); alert("Observación registrada."); } catch (error) { alert(error.message); } }
+async function setUrgent(project) { try { await managementApi(`/api/projects/${project.id}/priority`, { method: "PATCH", body: JSON.stringify({ isUrgent: !project.is_urgent }) }); await load(); } catch (error) { alert(error.message); } }
+async function extendDueDate(project) { const dueDate = prompt("Nueva fecha de avance (AAAA-MM-DD):", project.due_date || ""); if (!dueDate) return; try { await managementApi(`/api/projects/${project.id}/due-date`, { method: "PATCH", body: JSON.stringify({ dueDate }) }); await load(); } catch (error) { alert(error.message); } }
 
 $("#area-filter").addEventListener(
   "change",

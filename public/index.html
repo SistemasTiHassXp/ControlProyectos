@@ -27,7 +27,7 @@
 
 </head>
 
-<body class="protected-dashboard manager-page">
+<body class="protected-dashboard manager-page view-home">
     <aside class="manager-sidebar"><div class="manager-profile"><b id="manager-initials">GE</b><span><strong id="manager-name">Gerencia</strong><small id="manager-role">Solo lectura</small></span></div><button class="manager-nav active" data-manager-view="home">⌂ Inicio</button><button class="manager-nav" data-manager-view="dashboard">▥ Dashboard & Reportes</button><button class="manager-nav" data-manager-view="directory">◎ Directorio Global</button><button id="manager-logout" class="manager-logout">⇥ Cerrar sesión</button></aside><div class="manager-content">
 
     <header class="topbar">
@@ -41,13 +41,6 @@
         </a>
 
         <div class="header-actions">
-
-            <select
-                id="area-filter"
-                aria-label="Filtrar por área">
-            </select>
-
-            <select id="owner-filter" aria-label="Filtrar por responsable"></select>
 
             <span id="dashboard-user"></span>
             <button id="dashboard-logout" class="button ghost">Cerrar sesión</button>
@@ -286,7 +279,7 @@
 
         </section>
 
-        <div class="directory-status manager-directory-section"><select id="directory-status"><option value="all">Todos los estados</option><option value="active">Activos</option><option value="standby">En espera</option><option value="completed">Culminados</option><option value="delayed">Retrasados</option></select><span>Filtra por área, estado y responsable.</span></div><div
+        <div class="directory-status manager-directory-section"><select id="area-filter" aria-label="Filtrar por área"></select><select id="owner-filter" aria-label="Filtrar por responsable"></select><select id="directory-status"><option value="all">Todos los estados</option><option value="active">Activos</option><option value="standby">En espera</option><option value="completed">Culminados</option><option value="delayed">Retrasados</option></select><span>Filtra por área, estado y responsable.</span></div><div
             id="projects"
             class="project-grid manager-directory-section">
         </div>
