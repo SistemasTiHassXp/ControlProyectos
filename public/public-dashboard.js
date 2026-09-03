@@ -231,6 +231,10 @@ function render() {
     state.projects.filter(
       urgent
     ).length;
+  const overdue = state.projects.filter((project) => project.status !== "completed" && project.due_date && new Date(`${project.due_date}T23:59:59`) < new Date());
+  $("#urgent-summary").innerHTML = overdue.length ? overdue.slice(0, 5).map((project) => `<p><strong>${escapeHtml(project.title)}</strong><span>Venció: ${formatDate(project.due_date)}</span></p>`).join("") : "<p>Todo al día. No hay pendientes críticos.</p>";
+  const upcoming = state.projects.filter(urgent);
+  $("#soon-summary").innerHTML = upcoming.length ? upcoming.slice(0, 5).map((project) => `<p><strong>${escapeHtml(project.title)}</strong><span>Vence: ${formatDate(project.due_date)}</span></p>`).join("") : "<p>Nada programado.</p>";
      const colors = [
     "#6366f1",
     "#3b82f6",
@@ -647,6 +651,7 @@ $("#manager-initials").textContent = (profile?.full_name || "Gerencia").split(" 
 $("#manager-role").textContent = profile?.role === "executive" ? "Gerencia · Solo lectura" : "Jefatura · Solo lectura";
 $("#manager-greeting").textContent = `Hola, ${(profile?.full_name || "Gerencia").split(" ")[0]}`;
 $("#dashboard-logout").addEventListener("click", () => signOut(supabase));
+$("#manager-logout").addEventListener("click", () => signOut(supabase));
 
 clock();
 

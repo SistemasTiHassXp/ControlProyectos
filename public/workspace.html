@@ -9,21 +9,22 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
 </head>
-<body class="workspace-page">
+<body class="workspace-page member-page member-view-home">
+  <aside class="member-sidebar"><div class="member-profile"><b id="member-initials">US</b><span><strong id="member-name">Responsable</strong><small>Responsable de proyectos</small></span></div><button class="member-nav active" data-member-view="home">⌂ Inicio</button><button class="member-nav" data-member-view="reports">▥ Dashboard & Reportes</button><button class="member-nav" data-member-view="projects">▰ Mis Proyectos</button></aside>
   <header class="workspace-topbar">
     <a class="brand" href="/"><span>▦</span>Control de Proyectos</a>
     <div class="header-actions"><a class="button ghost" href="/index.html">◎ Dashboard</a><button id="change-password" class="button ghost">♙ Cambiar clave</button><button id="logout" class="button ghost">⇥ Salir</button></div>
   </header>
-  <main class="workspace-main">
-    <section class="workspace-profile"><div class="workspace-avatar" id="user-initials">US</div><div><h2 id="user-name">Mis proyectos</h2><p id="user-area-name">Área asignada</p></div><span class="user-role">Responsable de proyectos</span><time id="live-clock"></time></section>
-    <section class="workspace-heading"><div><h1>Mis proyectos</h1><p>Crea y actualiza únicamente los proyectos bajo tu responsabilidad.</p></div><button id="new-project" class="button">＋ Nuevo proyecto</button></section>
-    <section class="workspace-metrics">
+  <main class="workspace-main"><section class="member-home"><h1 id="member-greeting">Hola</h1><p>Este es tu resumen operativo para el día de hoy.</p><div class="member-shortcuts"><button id="goto-reports">▥ Ver Reporte de Rendimiento</button><button id="goto-projects">＋ Registrar Nuevo Proyecto</button></div><div class="manager-home-grid"><article><h2>🚨 Urgente y vencido</h2><div id="member-urgent"></div></article><article><h2>▦ Próximos a vencer</h2><div id="member-soon"></div></article></div></section>
+    <section class="workspace-profile member-project-section"><div class="workspace-avatar" id="user-initials">US</div><div><h2 id="user-name">Mis proyectos</h2></div><span class="user-role">Responsable de proyectos</span><time id="live-clock"></time></section>
+    <section class="workspace-heading member-project-section"><div><h1>Mis Proyectos (Bajo mi cargo)</h1><p>Crea y actualiza únicamente los proyectos bajo tu responsabilidad.</p></div><button id="new-project" class="button">＋ Nuevo proyecto</button></section>
+    <section class="workspace-metrics member-report-section">
       <article class="active"><span>▱</span><div><strong id="metric-active">0</strong><small>Activos</small></div></article>
       <article class="complete"><span>✓</span><div><strong id="metric-completed">0</strong><small>Completados</small></div></article>
       <article class="standby"><span>◷</span><div><strong id="metric-standby">0</strong><small>En espera</small></div></article>
       <article class="delayed"><span>⚠</span><div><strong id="metric-delayed">0</strong><small>Con retraso</small></div></article>
     </section>
-    <section class="workspace-board">
+    <section class="workspace-board member-project-section">
       <div class="projects-column">
         <div class="workspace-filters"><label class="search-project">⌕<input id="project-search" placeholder="Buscar proyecto..."></label><select id="status-filter"><option value="all">Todos los estados</option><option value="active">Activos</option><option value="standby">En espera</option><option value="completed">Completados</option><option value="delayed">Con retraso</option></select><select id="project-order"><option value="recent">Ordenar por: Más recientes</option><option value="progress">Ordenar por: Mayor avance</option><option value="due">Ordenar por: Fecha límite</option></select></div>
         <div id="projects" class="project-grid"></div>

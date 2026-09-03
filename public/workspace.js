@@ -22,10 +22,16 @@ async function load() {
   state.projects = (projectsResult.data || []).map((project) => ({ ...project, project_steps: (project.project_steps || []).sort((first, second) => Number(first.position) - Number(second.position)) }));
   $('#user-name').textContent = profile.full_name;
   $('#user-initials').textContent = initials(profile.full_name);
-  $('#user-area-name').textContent = `Área asignada: ${areaName(profile.area_id)}`;
-  $('#assigned-area-note').textContent = `Todos los proyectos que crees estarán asociados automáticamente a tu área: ${areaName(profile.area_id)}.`;
+  $('#member-name').textContent = profile.full_name;
+  $('#member-initials').textContent = initials(profile.full_name);
+  $('#member-greeting').textContent = `Hola, ${profile.full_name.split(' ')[0]}`;
+  $('#assigned-area-note').textContent = 'Tus proyectos quedan bajo tu cargo y solo tú puedes administrarlos.';
   $('#standby-area').innerHTML = state.areas.filter((area) => area.id !== profile.area_id).map((area) => `<option value="${area.id}">${escapeHtml(area.name)}</option>`).join('') || '<option value="">No hay otra área disponible</option>';
   updateMetrics();
+  const overdue = state.projects.filter((project) => project.status !== 'completed' && project.due_date && new Date(`${project.due_date}T23:59:59`) < new Date());
+  $('#member-urgent').innerHTML = overdue.length ? overdue.slice(0, 5).map((project) => `<p><strong>${escapeHtml(project.title)}</strong><span>Venció: ${formatDate(project.due_date)}</span></p>`).join('') : '<p>Todo al día. No hay pendientes críticos.</p>';
+  const upcoming = state.projects.filter((project) => project.status !== 'completed' && project.due_date && new Date(`${project.due_date}T23:59:59`) >= new Date()).slice(0, 5);
+  $('#member-soon').innerHTML = upcoming.length ? upcoming.map((project) => `<p><strong>${escapeHtml(project.title)}</strong><span>Vence: ${formatDate(project.due_date)}</span></p>`).join('') : '<p>Nada programado.</p>';
   render();
 }
 
@@ -102,6 +108,9 @@ document.querySelectorAll('[data-close]').forEach((button) => button.addEventLis
 $('#change-password').addEventListener('click', () => $('#password-dialog').showModal());
 $('#password-form').addEventListener('submit', async (event) => { event.preventDefault(); const form = event.currentTarget; const password = new FormData(form).get('password'); try { await api('/api/account/password', { method: 'PATCH', body: JSON.stringify({ password }) }); $('#password-dialog').close(); form.reset(); profile.must_change_password = false; alert('Contraseña actualizada correctamente.'); } catch (error) { alert(error.message); } });
 $('#new-project').addEventListener('click', () => $('#project-dialog').showModal());
+document.querySelectorAll('[data-member-view]').forEach((button) => button.addEventListener('click', () => { const view = button.dataset.memberView; document.querySelectorAll('[data-member-view]').forEach((item) => item.classList.toggle('active', item === button)); document.body.className = `workspace-page member-page member-view-${view}`; }));
+$('#goto-projects').addEventListener('click', () => document.querySelector('[data-member-view="projects"]').click());
+$('#goto-reports').addEventListener('click', () => document.querySelector('[data-member-view="reports"]').click());
 $('#add-initial-step').addEventListener('click', () => $('#initial-steps').insertAdjacentHTML('beforeend', '<input placeholder="Paso adicional">'));
 ['#project-search', '#status-filter', '#project-order'].forEach((selector) => $(selector).addEventListener(selector === '#project-search' ? 'input' : 'change', render));
 $('#project-form').addEventListener('submit', async (event) => { event.preventDefault(); const formElement = event.currentTarget; const form = new FormData(formElement); const submit = formElement.querySelector('[type="submit"]'); const steps = [...document.querySelectorAll('#initial-steps input')].map((input) => input.value.trim()).filter(Boolean); submit.disabled = true; submit.textContent = 'Creando…'; try { await api('/api/projects', { method: 'POST', body: JSON.stringify({ title: form.get('title'), description: form.get('description'), dueDate: form.get('dueDate'), steps }) }); $('#project-dialog').close(); formElement.reset(); $('#initial-steps').innerHTML = '<input placeholder="Paso 1: Informe" required>'; await load(); } catch (error) { alert(error.message); } finally { submit.disabled = false; submit.textContent = 'Crear proyecto'; } });
