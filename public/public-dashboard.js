@@ -642,7 +642,7 @@ function render() {
 }
 
 async function managementApi(url, options = {}) { const response = await fetch(url, { ...options, headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` } }); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.error || "No se pudo completar la acción."); return data; }
-async function observations(project) { try { const result = await managementApi(`/api/projects/${project.id}/observations`); const history = result.observations.map((item) => `${item.profiles?.full_name || "Gerencia"} · ${new Date(item.created_at).toLocaleString("es-PE")}\n${item.message}`).join("\n\n") || "Sin observaciones."; const message = prompt(`Observaciones de ${project.title}:\n\n${history}\n\nEscribe una nueva observación (Cancelar para solo ver):`); if (!message?.trim()) return; await managementApi(`/api/projects/${project.id}/observations`, { method: "POST", body: JSON.stringify({ message }) }); alert("Observación registrada."); } catch (error) { alert(error.message); } }
+async function observations(project) { try { const result = await managementApi(`/api/projects/${project.id}/observations`); $("#observations-project").textContent = project.title; $("#observations-history").innerHTML = result.observations.length ? result.observations.map((item) => `<article><div><b>${escapeHtml(item.profiles?.full_name || "Gerencia")}</b><time>${new Date(item.created_at).toLocaleString("es-PE")}</time></div><p>${escapeHtml(item.message)}</p></article>`).join("") : "<p class=\"muted\">Aún no hay observaciones registradas.</p>"; $("#observations-form").dataset.projectId = project.id; $("#observation-message").value = ""; $("#observation-count").textContent = "0/500"; $("#observations-dialog").showModal(); } catch (error) { alert(error.message); } }
 async function setUrgent(project) { try { await managementApi(`/api/projects/${project.id}/priority`, { method: "PATCH", body: JSON.stringify({ isUrgent: !project.is_urgent }) }); await load(); } catch (error) { alert(error.message); } }
 async function extendDueDate(project) { const dueDate = prompt("Nueva fecha de avance (AAAA-MM-DD):", project.due_date || ""); if (!dueDate) return; try { await managementApi(`/api/projects/${project.id}/due-date`, { method: "PATCH", body: JSON.stringify({ dueDate }) }); await load(); } catch (error) { alert(error.message); } }
 
@@ -667,6 +667,9 @@ $("#manager-role").textContent = profile?.role === "executive" ? "Gerencia · So
 $("#manager-greeting").textContent = `Hola, ${(profile?.full_name || "Gerencia").split(" ")[0]}`;
 $("#dashboard-logout").addEventListener("click", () => signOut(supabase));
 $("#manager-logout").addEventListener("click", () => signOut(supabase));
+document.querySelectorAll("[data-observations-close]").forEach((button) => button.addEventListener("click", () => $("#observations-dialog").close()));
+$("#observation-message").addEventListener("input", (event) => { $("#observation-count").textContent = `${event.target.value.length}/500`; });
+$("#observations-form").addEventListener("submit", async (event) => { event.preventDefault(); const message = $("#observation-message").value.trim(); if (!message) return; try { await managementApi(`/api/projects/${event.currentTarget.dataset.projectId}/observations`, { method: "POST", body: JSON.stringify({ message }) }); $("#observations-dialog").close(); await load(); } catch (error) { alert(error.message); } });
 
 clock();
 

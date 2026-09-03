@@ -320,6 +320,8 @@
 
     </template>
 
+    <dialog id="observations-dialog" class="observations-dialog"><form id="observations-form" class="observations-modal"><button class="close" type="button" data-observations-close>×</button><h1>Observaciones</h1><div class="observations-project" id="observations-project"></div><div id="observations-history" class="observations-history"></div><div class="observation-entry"><h2>Añadir observación</h2><textarea id="observation-message" maxlength="500" placeholder="Escribe tu observación o indicación aquí..."></textarea><div><span>ⓘ La observación quedará registrada en el historial del proyecto.</span><small id="observation-count">0/500</small></div></div><div class="observations-actions"><button type="button" class="button ghost" data-observations-close>Cancelar</button><button type="submit" class="button">Guardar observación</button></div></form></dialog>
+
     <script
         type="module"
         src="/public-dashboard.js">
