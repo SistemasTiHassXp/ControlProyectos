@@ -660,7 +660,7 @@ $("#owner-filter").addEventListener("change", (event) => { state.activeOwner = e
 $("#directory-status").addEventListener("change", (event) => { state.activeStatus = event.target.value; render(); });
 document.querySelectorAll("[data-manager-view]").forEach((button) => button.addEventListener("click", () => { const view = button.dataset.managerView; document.querySelectorAll("[data-manager-view]").forEach((item) => item.classList.toggle("active", item === button)); document.body.className = `protected-dashboard manager-page authorized-dashboard view-${view}`; }));
 
-$("#dashboard-user").textContent = `♙ ${profile?.full_name || "Gerencia"}`;
+$("#dashboard-user").textContent = `👤 ${profile?.full_name || "Gerencia"}`;
 $("#manager-name").textContent = profile?.full_name || "Gerencia";
 $("#manager-initials").textContent = (profile?.full_name || "Gerencia").split(" ").map((item) => item[0]).slice(0, 2).join("").toUpperCase();
 $("#manager-role").textContent = profile?.role === "executive" ? "Gerencia · Solo lectura" : "Jefatura · Solo lectura";

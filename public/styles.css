@@ -548,4 +548,10 @@ dialog::backdrop {
 .manager-sidebar .manager-bottom { position:absolute; right:12px; bottom:22px; left:12px; }
 .manager-bottom .manager-logout { position:static; width:100%; padding:12px; text-align:left; }
 @media (max-width:650px) { .cnt-logo-cincinnati img { width:55px; height:55px; }.cnt-logo-cincinnati span { font-size:20px; } }
+
+.brand-cincinnati img { width:auto; max-width:82px; object-fit:contain; }
+.cnt-logo-cincinnati { flex-direction:column; justify-content:center; gap:12px; text-align:center; }
+.cnt-logo-cincinnati img { width:84px; height:84px; padding:10px; border:1px solid #cad6cc; border-radius:50%; background:white; object-fit:contain; box-shadow:0 8px 22px #0004; }
+.cnt-logo-cincinnati span { font-size:25px; text-align:center; }
+.redundant-member-metrics { display:none; }
 @media (max-width:850px) { .member-page { padding-left:0; }.member-sidebar { position:static; width:auto; display:flex; gap:8px; align-items:center; padding:12px; }.member-profile { margin:0 auto 0 0; }.member-nav { width:auto; margin:0; padding:9px; font-size:11px; }.member-page .workspace-topbar { padding:10px 16px; }.member-home { padding:22px 16px; }.member-shortcuts { grid-template-columns:1fr; } }
