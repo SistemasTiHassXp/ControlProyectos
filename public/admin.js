@@ -47,7 +47,8 @@ async function resetPassword(userId) { const password = prompt('Nueva contraseñ
 async function disableUser(userId) { if (!confirm('¿Desactivar esta cuenta? Sus proyectos se conservarán como historial.')) return; try { await api(`/api/admin/users/${userId}`, { method: 'DELETE' }); await load(); } catch (error) { alert(error.message); } }
 async function deleteArea(areaId) { if (!confirm('¿Eliminar esta área? Solo se permite si no tiene proyectos históricos.')) return; try { await api(`/api/admin/areas/${areaId}`, { method: 'DELETE' }); await load(); } catch (error) { alert(error.message); } }
 
-$('#logout').addEventListener('click', () => signOut(supabase));
+$('#logout')?.addEventListener('click', () => signOut(supabase));
+$('#admin-sidebar-logout').addEventListener('click', () => signOut(supabase));
 $('#user-search').addEventListener('input', renderUsers);
 $('#user-role').addEventListener('change', (event) => { const readOnly = ['manager', 'executive'].includes(event.target.value); $('#user-area').required = !readOnly; $('#user-area').disabled = readOnly; $('#area-field').classList.toggle('disabled-field', readOnly); $('#area-help').textContent = readOnly ? 'Las cuentas de consulta ven todas las áreas y no requieren área asignada.' : 'Obligatoria para responsables de proyectos.'; });
 document.querySelectorAll('[data-tab]').forEach((button) => button.addEventListener('click', () => { const tab = button.dataset.tab; document.querySelectorAll('[data-tab]').forEach((item) => item.classList.toggle('active', item.dataset.tab === tab)); $('#users-panel').classList.toggle('hidden', tab !== 'users'); $('#areas-panel').classList.toggle('hidden', tab !== 'areas'); }));
