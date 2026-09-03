@@ -79,9 +79,11 @@ function render() {
       steps.append(row);
     });
     const actions = card.querySelector('.card-actions');
-    actions.innerHTML = `<button class="text-button state-button">${project.status === 'standby' ? 'Reanudar proyecto' : 'Poner en espera'}</button><button class="text-button insert-button">＋ Agregar paso</button><button class="text-button delete-button">Eliminar proyecto</button>`;
+    const readyToComplete = value.total > 0 && value.done === value.total && project.status !== 'completed';
+    actions.innerHTML = `<button class="text-button state-button">${project.status === 'standby' ? 'Reanudar proyecto' : 'Poner en espera'}</button><button class="text-button insert-button">＋ Agregar paso</button><button class="text-button complete-button" ${readyToComplete ? '' : 'disabled'}>${project.status === 'completed' ? 'Proyecto finalizado' : 'Marcar como completado'}</button><button class="text-button delete-button">Eliminar proyecto</button>`;
     actions.querySelector('.state-button').addEventListener('click', () => project.status === 'standby' ? resumeProject(project) : openStandby(project));
     actions.querySelector('.insert-button').addEventListener('click', () => insertStep(project));
+    actions.querySelector('.complete-button').addEventListener('click', () => completeProject(project));
     actions.querySelector('.delete-button').addEventListener('click', () => deleteProject(project));
     container.append(node);
   });
@@ -92,6 +94,7 @@ async function editNote(step) { const note = prompt('Nota del avance:', step.not
 async function insertStep(project, nextPosition) { const title = prompt('Nombre del paso que deseas insertar:'); if (!title?.trim()) return; const previous = project.project_steps.filter((step) => Number(step.position) < Number(nextPosition)).at(-1); const position = nextPosition ? (Number(previous?.position || 0) + Number(nextPosition)) / 2 : Number(project.project_steps.at(-1)?.position || 0) + 1000; const { error } = await supabase.from('project_steps').insert({ project_id: project.id, title: title.trim(), position }); if (error) return alert(error.message); await load(); }
 function openStandby(project) { const form = $('#standby-form'); form.reset(); form.querySelector('[name="projectId"]').value = project.id; $('#standby-dialog').showModal(); }
 async function resumeProject(project) { try { await api(`/api/projects/${project.id}/resume`, { method: 'POST' }); await load(); } catch (error) { alert(error.message); } }
+async function completeProject(project) { if (project.status === 'completed') return; if (!confirm(`¿Marcar “${project.title}” como completado?`)) return; try { await api(`/api/projects/${project.id}/complete`, { method: 'POST' }); await load(); } catch (error) { alert(error.message); } }
 async function deleteProject(project) { if (!confirm(`¿Eliminar “${project.title}”? Esta acción no se puede deshacer.`)) return; try { await api(`/api/projects/${project.id}`, { method: 'DELETE' }); await load(); } catch (error) { alert(error.message); } }
 
 $('#logout').addEventListener('click', () => signOut(supabase));

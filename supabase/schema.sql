@@ -353,11 +353,12 @@ to anon, authenticated;
 grant insert, update, delete on public.projects, public.project_steps
 to authenticated;
 grant select, update on public.alerts to authenticated;
+revoke all on public.areas, public.profiles, public.projects, public.project_steps, public.alerts from anon;
 
 create policy "public can read areas"
 on public.areas
 for select
-using (true);
+using (auth.uid() is not null);
 
 create policy "admin manages areas"
 on public.areas
@@ -372,7 +373,7 @@ with check (
 create policy "profiles readable"
 on public.profiles
 for select
-using (true);
+using (auth.uid() is not null);
 
 create policy "members update their profile"
 on public.profiles
@@ -387,7 +388,7 @@ with check (
 create policy "projects are public"
 on public.projects
 for select
-using (true);
+using (auth.uid() is not null);
 
 create policy "owner creates own project"
 on public.projects
@@ -424,7 +425,7 @@ using (
 create policy "steps are public"
 on public.project_steps
 for select
-using (true);
+using (auth.uid() is not null);
 
 create policy "owner manages project steps"
 on public.project_steps

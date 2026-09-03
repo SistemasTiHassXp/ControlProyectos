@@ -58,6 +58,7 @@ to anon, authenticated;
 grant insert, update, delete on public.projects, public.project_steps
 to authenticated;
 grant select, update on public.alerts to authenticated;
+revoke all on public.areas, public.profiles, public.projects, public.project_steps, public.alerts from anon;
 
 drop policy if exists "public can read areas" on public.areas;
 drop policy if exists "admin manages areas" on public.areas;
@@ -72,16 +73,16 @@ drop policy if exists "owner manages project steps" on public.project_steps;
 drop policy if exists "users read own alerts" on public.alerts;
 drop policy if exists "users update own alerts" on public.alerts;
 
-create policy "public can read areas" on public.areas for select using (true);
+create policy "public can read areas" on public.areas for select using (auth.uid() is not null);
 create policy "admin manages areas" on public.areas for all
 using (public.current_role() = 'admin')
 with check (public.current_role() = 'admin');
 
-create policy "profiles readable" on public.profiles for select using (true);
+create policy "profiles readable" on public.profiles for select using (auth.uid() is not null);
 create policy "members update their profile" on public.profiles for update
 using (id = auth.uid()) with check (id = auth.uid());
 
-create policy "projects are public" on public.projects for select using (true);
+create policy "projects are public" on public.projects for select using (auth.uid() is not null);
 create policy "owner creates own project" on public.projects for insert
 with check (
     owner_id = auth.uid()
@@ -93,7 +94,7 @@ with check (owner_id = auth.uid() or public.current_role() = 'admin');
 create policy "owner deletes own project" on public.projects for delete
 using (owner_id = auth.uid() or public.current_role() = 'admin');
 
-create policy "steps are public" on public.project_steps for select using (true);
+create policy "steps are public" on public.project_steps for select using (auth.uid() is not null);
 create policy "owner manages project steps" on public.project_steps for all
 using (public.owns_project(project_id))
 with check (public.owns_project(project_id));

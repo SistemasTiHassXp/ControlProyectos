@@ -14,6 +14,7 @@ const $ = (selector) =>
 const form = $('#login-form');
 
 const errorBox = $('#form-error');
+const destination = (profile) => profile.role === 'admin' ? '/admin.html' : profile.role === 'manager' ? '/index.html' : '/workspace.html';
 
 async function createSessionControls() {
     const {
@@ -48,10 +49,7 @@ async function createSessionControls() {
         continueButton.addEventListener(
             'click',
             () => {
-                location.href =
-                    profile.role === 'admin'
-                        ? '/admin.html'
-                        : '/workspace.html';
+                location.href = destination(profile);
             }
         );
 
@@ -163,10 +161,7 @@ form.addEventListener(
         const { profile } =
             await profileFor(supabase);
 
-        location.href =
-            profile.role === 'admin'
-                ? '/admin.html'
-                : '/workspace.html';
+        location.href = destination(profile);
     }
 );
 

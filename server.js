@@ -29,7 +29,11 @@ const adminClient =
 
 app.use(express.json());
 
-app.use(express.static("public"));
+app.get("/", (_request, response) => {
+  response.redirect("/login.html");
+});
+
+app.use(express.static("public", { index: false }));
 
 app.get("/health", (_request, response) => {
   response.json({
@@ -571,6 +575,37 @@ app.patch(
     const { error: authError } = await adminClient.auth.admin.updateUserById(userId, { password, ban_duration: "none" });
     if (authError) return response.status(400).json({ error: authError.message });
     const { error } = await adminClient.from("profiles").update({ is_active: true, must_change_password: true, archived_at: null }).eq("id", userId);
+    if (error) return response.status(400).json({ error: error.message });
+    response.json({ success: true });
+  }
+);
+
+app.post(
+  "/api/projects/:id/complete",
+  async (request, response) => {
+    const auth = await authenticate(request, response);
+    if (!auth) return;
+
+    const projectId = request.params.id;
+    const { data: project, error: projectError } = await adminClient
+      .from("projects")
+      .select("id, owner_id")
+      .eq("id", projectId)
+      .single();
+    if (projectError || !project) return response.status(404).json({ error: "Proyecto no encontrado." });
+    if (project.owner_id !== auth.user.id && auth.profile.role !== "admin") return response.status(403).json({ error: "No tienes permiso para finalizar este proyecto." });
+
+    const { data: steps, error: stepsError } = await adminClient
+      .from("project_steps")
+      .select("is_completed")
+      .eq("project_id", projectId);
+    if (stepsError) return response.status(400).json({ error: stepsError.message });
+    if (!steps?.length || steps.some((step) => !step.is_completed)) return response.status(400).json({ error: "Completa todos los pasos antes de finalizar el proyecto." });
+
+    const { error } = await adminClient
+      .from("projects")
+      .update({ status: "completed" })
+      .eq("id", projectId);
     if (error) return response.status(400).json({ error: error.message });
     response.json({ success: true });
   }

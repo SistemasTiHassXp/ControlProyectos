@@ -2,10 +2,17 @@ import {
   client,
   escapeHtml,
   formatDate,
-  progress
+  progress,
+  profileFor,
+  signOut
 } from "./common.js";
 
 const supabase = await client();
+const { session, profile } = await profileFor(supabase);
+if (!session) location.href = "/login.html";
+if (profile?.role === "admin") location.href = "/admin.html";
+if (profile?.role === "member") location.href = "/workspace.html";
+if (profile?.role === "manager") document.body.classList.add("authorized-dashboard");
 
 const state = {
   areas: [],
@@ -108,8 +115,7 @@ async function load() {
         )
     }));
 
-  state.activeArea ||=
-    state.areas[0]?.id || "";
+  if (!state.activeArea || (state.activeArea !== "all" && !state.areas.some((area) => area.id === state.activeArea))) state.activeArea = "all";
 
   render();
 }
@@ -121,12 +127,7 @@ function render() {
         state.activeArea
     );
 
-  const projects =
-    state.projects.filter(
-      (item) =>
-        item.area_id ===
-        state.activeArea
-    );
+  const projects = state.activeArea === "all" ? state.projects : state.projects.filter((item) => item.area_id === state.activeArea);
 
   const values =
     state.projects.map(
@@ -182,8 +183,7 @@ function render() {
         )
     );
 
-  $("#area-filter").innerHTML =
-    state.areas
+  $("#area-filter").innerHTML = `<option value="all">Todas las áreas</option>` + state.areas
       .map(
         (item) =>
           `
@@ -201,10 +201,7 @@ function render() {
     state.activeArea;
 
   $("#area-title").textContent =
-    `Proyectos · ${
-      area?.name ||
-      "Sin área"
-    }`;
+    state.activeArea === "all" ? "Proyectos · Todas las áreas" : `Proyectos · ${area?.name || "Sin área"}`;
 
   $("#area-subtitle").textContent =
     `${projects.length} proyecto(s) registrados · historial incluido`;
@@ -581,9 +578,7 @@ function render() {
       `;
     }
 
-    card.querySelector(".steps").innerHTML =
-      standbyInfo +
-      project.project_steps
+    const stepsMarkup = project.project_steps
         .map(
           (step) => `
             <div class="step ${
@@ -616,6 +611,8 @@ function render() {
           `
         )
         .join("");
+    const preview = project.project_steps.slice(0, 2).map((step) => `<div class="step ${step.is_completed ? "done" : ""}"><span>${step.is_completed ? "✓" : "○"}</span><label>${escapeHtml(step.title)}</label></div>`).join("");
+    card.querySelector(".steps").innerHTML = standbyInfo + preview + (project.project_steps.length > 2 || project.description ? `<details class="project-details"><summary>Ver descripción y todos los pasos (${project.project_steps.length})</summary>${project.description ? `<p>${escapeHtml(project.description)}</p>` : ""}${stepsMarkup}</details>` : "");
 
     container.append(node);
   });
@@ -630,6 +627,9 @@ $("#area-filter").addEventListener(
     render();
   }
 );
+
+$("#dashboard-user").textContent = profile?.full_name || "Gerencia";
+$("#dashboard-logout").addEventListener("click", () => signOut(supabase));
 
 clock();
 
