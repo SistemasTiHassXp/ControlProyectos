@@ -316,12 +316,13 @@ app.post(
       .toLowerCase();
 
     const email = `${username}@control.local`;
+    const readOnlyRole = role === "manager" || role === "executive";
 
     if (
       !password ||
       !fullName ||
       !username ||
-      !areaId
+      (!readOnlyRole && !areaId)
     ) {
       return response
         .status(400)
@@ -357,7 +358,7 @@ app.post(
             full_name:
               fullName,
             username,
-            area_id: areaId
+            area_id: readOnlyRole ? null : areaId
           }
         }
       );
@@ -381,7 +382,7 @@ app.post(
         full_name:
           fullName,
         username,
-        area_id: areaId,
+        area_id: readOnlyRole ? null : areaId,
         role
       });
 
@@ -435,7 +436,7 @@ app.post(
     }
 
     if (
-      profile.role === "manager"
+      ["manager", "executive"].includes(profile.role)
     ) {
       return response
         .status(403)

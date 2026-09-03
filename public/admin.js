@@ -8,7 +8,7 @@ const state = { areas: [], users: [] };
 if (!session) location.href = '/login.html';
 if (profile?.role !== 'admin') { alert('Esta página es exclusiva del administrador.'); location.href = '/workspace.html'; }
 
-function roleLabel(role) { return role === 'admin' ? 'Administrador' : role === 'manager' ? 'Jefatura' : 'Responsable de proyectos'; }
+function roleLabel(role) { return role === 'admin' ? 'Administrador' : role === 'executive' ? 'Gerencia' : role === 'manager' ? 'Jefatura' : 'Responsable de proyectos'; }
 function initials(name) { return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase() || 'US'; }
 function dateLabel(value) { return new Intl.DateTimeFormat('es-PE', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)); }
 async function api(url, options = {}) { const response = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}`, ...(options.headers || {}) } }); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.error || 'No se pudo completar la acción.'); return data; }
@@ -49,6 +49,7 @@ async function deleteArea(areaId) { if (!confirm('¿Eliminar esta área? Solo se
 
 $('#logout').addEventListener('click', () => signOut(supabase));
 $('#user-search').addEventListener('input', renderUsers);
+$('#user-role').addEventListener('change', (event) => { const readOnly = ['manager', 'executive'].includes(event.target.value); $('#user-area').required = !readOnly; $('#user-area').disabled = readOnly; $('#area-field').classList.toggle('disabled-field', readOnly); $('#area-help').textContent = readOnly ? 'Las cuentas de consulta ven todas las áreas y no requieren área asignada.' : 'Obligatoria para responsables de proyectos.'; });
 document.querySelectorAll('[data-tab]').forEach((button) => button.addEventListener('click', () => { const tab = button.dataset.tab; document.querySelectorAll('[data-tab]').forEach((item) => item.classList.toggle('active', item.dataset.tab === tab)); $('#users-panel').classList.toggle('hidden', tab !== 'users'); $('#areas-panel').classList.toggle('hidden', tab !== 'areas'); }));
 $('#area-form').addEventListener('submit', async (event) => { event.preventDefault(); const form = event.currentTarget; const name = new FormData(form).get('name').trim(); const { error } = await supabase.from('areas').insert({ name }); $('#area-message').textContent = error ? error.message : `Área ${name} creada correctamente.`; if (!error) { form.reset(); await load(); } });
 $('#user-form').addEventListener('submit', async (event) => { event.preventDefault(); const form = event.currentTarget; const values = Object.fromEntries(new FormData(form)); if (values.password !== values.passwordConfirmation) { $('#user-message').textContent = 'Las contraseñas no coinciden.'; return; } delete values.passwordConfirmation; try { const data = await api('/api/admin/users', { method: 'POST', body: JSON.stringify(values) }); $('#user-message').textContent = `Usuario ${data.user.username} creado correctamente.`; form.reset(); await load(); } catch (error) { $('#user-message').textContent = error.message; } });

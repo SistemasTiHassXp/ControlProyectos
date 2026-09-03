@@ -39,8 +39,8 @@
             <label>Usuario<input name="username" required pattern="[A-Za-z0-9._\-]{3,40}" title="Usa entre 3 y 40 letras, números, punto, guion o guion bajo." placeholder="Ej. jmateo" autocomplete="username"></label>
             <label>Contraseña inicial<input name="password" type="password" minlength="8" required placeholder="Mínimo 8 caracteres" autocomplete="new-password"></label>
             <label>Confirmar contraseña<input name="passwordConfirmation" type="password" minlength="8" required placeholder="Repite la contraseña" autocomplete="new-password"></label>
-            <label>Área asignada<select name="areaId" id="user-area" required></select></label>
-            <label>Tipo de cuenta<select name="role"><option value="member">Responsable de proyectos</option><option value="manager">Jefatura (solo consulta)</option><option value="admin">Administrador</option></select></label>
+            <label id="area-field">Área asignada<select name="areaId" id="user-area" required></select><small id="area-help">Obligatoria para responsables de proyectos.</small></label>
+            <label>Tipo de cuenta<select name="role" id="user-role"><option value="member">Responsable de proyectos</option><option value="manager">Jefatura (solo consulta)</option><option value="executive">Gerencia (solo consulta)</option><option value="admin">Administrador</option></select></label>
           </div>
           <p id="user-message" class="form-message" aria-live="polite"></p><button class="button" type="submit">♙ Crear usuario</button>
         </form>

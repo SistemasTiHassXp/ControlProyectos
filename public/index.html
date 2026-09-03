@@ -27,7 +27,8 @@
 
 </head>
 
-<body class="protected-dashboard">
+<body class="protected-dashboard manager-page">
+    <aside class="manager-sidebar"><div class="manager-profile"><b id="manager-initials">GE</b><span><strong id="manager-name">Gerencia</strong><small id="manager-role">Solo lectura</small></span></div><button class="manager-nav active" data-manager-view="home">⌂ Inicio</button><button class="manager-nav" data-manager-view="dashboard">▥ Dashboard & Reportes</button><button class="manager-nav" data-manager-view="directory">◎ Directorio Global</button></aside><div class="manager-content">
 
     <header class="topbar">
 
@@ -46,6 +47,8 @@
                 aria-label="Filtrar por área">
             </select>
 
+            <select id="owner-filter" aria-label="Filtrar por responsable"></select>
+
             <span id="dashboard-user"></span>
             <button id="dashboard-logout" class="button ghost">Cerrar sesión</button>
 
@@ -53,9 +56,9 @@
 
     </header>
 
-    <main class="shell executive">
+    <main class="shell executive"><section id="manager-home" class="manager-home"><h1 id="manager-greeting">Hola</h1><p>Este es tu resumen operativo para el día de hoy.</p><div class="manager-home-grid"><article><h2>🚨 Urgente y vencido</h2><div id="urgent-summary"></div></article><article><h2>▦ Próximos a vencer</h2><div id="soon-summary"></div></article></div></section>
 
-        <section class="welcome">
+        <section class="welcome manager-dashboard-section">
 
             <div>
 
@@ -83,7 +86,7 @@
 
         </section>
 
-        <section class="metrics metrics-five">
+        <section class="metrics metrics-five manager-dashboard-section">
 
             <article>
 
@@ -137,7 +140,7 @@
 
         </section>
 
-        <section class="executive-grid">
+        <section class="executive-grid manager-dashboard-section">
 
             <article class="panel donut-panel">
 
@@ -263,7 +266,7 @@
 
         </section>
 
-        <section class="section-title">
+        <section class="section-title manager-directory-section">
 
             <div>
 
@@ -283,9 +286,9 @@
 
         </section>
 
-        <div
+        <div class="directory-status manager-directory-section"><select id="directory-status"><option value="all">Todos los estados</option><option value="active">Activos</option><option value="standby">En espera</option><option value="completed">Culminados</option><option value="delayed">Retrasados</option></select><span>Filtra por área, estado y responsable.</span></div><div
             id="projects"
-            class="project-grid">
+            class="project-grid manager-directory-section">
         </div>
 
     </main>
@@ -329,6 +332,6 @@
         src="/public-dashboard.js">
     </script>
 
-</body>
+    </div></body>
 
 </html>

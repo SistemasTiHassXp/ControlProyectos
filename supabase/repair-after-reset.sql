@@ -2,6 +2,8 @@
 -- admin@control.local en Authentication con la contraseña Superadmin.
 -- Es seguro ejecutarlo más de una vez.
 
+alter type public.user_role add value if not exists 'executive';
+
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql

@@ -12,12 +12,14 @@ const { session, profile } = await profileFor(supabase);
 if (!session) location.href = "/login.html";
 if (profile?.role === "admin") location.href = "/admin.html";
 if (profile?.role === "member") location.href = "/workspace.html";
-if (profile?.role === "manager") document.body.classList.add("authorized-dashboard");
+if (["manager", "executive"].includes(profile?.role)) document.body.classList.add("authorized-dashboard");
 
 const state = {
   areas: [],
   projects: [],
-  activeArea: ""
+  activeArea: "",
+  activeOwner: "",
+  activeStatus: "all"
 };
 
 const $ = (selector) =>
@@ -127,7 +129,8 @@ function render() {
         state.activeArea
     );
 
-  const projects = state.activeArea === "all" ? state.projects : state.projects.filter((item) => item.area_id === state.activeArea);
+  const scopedProjects = state.activeArea === "all" ? state.projects : state.projects.filter((item) => item.area_id === state.activeArea);
+  const projects = scopedProjects.filter((item) => (!state.activeOwner || item.owner_id === state.activeOwner) && (state.activeStatus === "all" || item.status === state.activeStatus));
 
   const values =
     state.projects.map(
@@ -199,6 +202,12 @@ function render() {
 
   $("#area-filter").value =
     state.activeArea;
+
+  const owners = state.projects.filter((item) => state.activeArea === "all" || item.area_id === state.activeArea).reduce((list, item) => item.profiles?.full_name && !list.some((owner) => owner.id === item.owner_id) ? [...list, { id: item.owner_id, name: item.profiles.full_name }] : list, []);
+  if (!owners.some((owner) => owner.id === state.activeOwner)) state.activeOwner = "";
+  $("#owner-filter").innerHTML = `<option value="">Todos los responsables</option>${owners.map((owner) => `<option value="${owner.id}">${escapeHtml(owner.name)}</option>`).join("")}`;
+  $("#owner-filter").value = state.activeOwner;
+  $("#directory-status").value = state.activeStatus;
 
   $("#area-title").textContent =
     state.activeArea === "all" ? "Proyectos · Todas las áreas" : `Proyectos · ${area?.name || "Sin área"}`;
@@ -623,12 +632,20 @@ $("#area-filter").addEventListener(
   (event) => {
     state.activeArea =
       event.target.value;
-
+    state.activeOwner = "";
     render();
   }
 );
 
+$("#owner-filter").addEventListener("change", (event) => { state.activeOwner = event.target.value; render(); });
+$("#directory-status").addEventListener("change", (event) => { state.activeStatus = event.target.value; render(); });
+document.querySelectorAll("[data-manager-view]").forEach((button) => button.addEventListener("click", () => { const view = button.dataset.managerView; document.querySelectorAll("[data-manager-view]").forEach((item) => item.classList.toggle("active", item === button)); document.body.className = `protected-dashboard manager-page authorized-dashboard view-${view}`; }));
+
 $("#dashboard-user").textContent = profile?.full_name || "Gerencia";
+$("#manager-name").textContent = profile?.full_name || "Gerencia";
+$("#manager-initials").textContent = (profile?.full_name || "Gerencia").split(" ").map((item) => item[0]).slice(0, 2).join("").toUpperCase();
+$("#manager-role").textContent = profile?.role === "executive" ? "Gerencia · Solo lectura" : "Jefatura · Solo lectura";
+$("#manager-greeting").textContent = `Hola, ${(profile?.full_name || "Gerencia").split(" ")[0]}`;
 $("#dashboard-logout").addEventListener("click", () => signOut(supabase));
 
 clock();
