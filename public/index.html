@@ -28,11 +28,11 @@
 </head>
 
 <body class="protected-dashboard manager-page view-home">
-    <aside class="manager-sidebar"><div class="manager-profile"><b id="manager-initials">GE</b><span><strong id="manager-name">Gerencia</strong><small id="manager-role">Solo lectura</small></span></div><button class="manager-nav active" data-manager-view="home">🏠 <span>Inicio</span></button><button class="manager-nav" data-manager-view="dashboard">📊 <span>Dashboard & Reportes</span></button><button class="manager-nav" data-manager-view="directory">🗂️ <span>Directorio Global</span></button><button id="manager-logout" class="manager-logout">⎋ <span>Cerrar sesión</span></button></aside><div class="manager-content">
+    <aside class="manager-sidebar"><div class="manager-profile"><b id="manager-initials">GE</b><span><strong id="manager-name">Gerencia</strong><small id="manager-role">Solo lectura</small></span></div><button class="manager-nav active" data-manager-view="home">🏠 <span>Inicio</span></button><button class="manager-nav" data-manager-view="dashboard">📊 <span>Dashboard & Reportes</span></button><button class="manager-nav" data-manager-view="directory">🗂️ <span>Directorio Global</span></button><div class="manager-bottom"><button id="manager-settings-toggle" class="manager-nav">⚙️ <span>Configuración</span></button><div id="manager-settings-menu" class="settings-menu hidden"><button id="manager-change-password">🔑 Cambiar clave</button></div><button id="manager-logout" class="manager-logout">⎋ <span>Cerrar sesión</span></button></div></aside><div class="manager-content">
 
     <header class="topbar">
 
-        <a class="brand brand-cincinnati" href="/"><img src="/assets/cincinnati-mark.svg" alt="Grupo Cincinnati"><span><strong>Grupo Cincinnati</strong><small>Control de Proyectos</small></span></a>
+        <a class="brand brand-cincinnati" href="/"><img src="/assets/logo-cincinnati.png" alt="Grupo Cincinnati"><span><strong>Grupo Cincinnati</strong><small>Control de Proyectos</small></span></a>
 
         <div class="header-actions">
 
@@ -315,6 +315,7 @@
     </template>
 
     <dialog id="observations-dialog" class="observations-dialog"><form id="observations-form" class="observations-modal"><button class="close" type="button" data-observations-close>×</button><h1>Observaciones</h1><div class="observations-project" id="observations-project"></div><div id="observations-history" class="observations-history"></div><div class="observation-entry"><h2>Añadir observación</h2><textarea id="observation-message" maxlength="500" placeholder="Escribe tu observación o indicación aquí..."></textarea><div><span>ⓘ La observación quedará registrada en el historial del proyecto.</span><small id="observation-count">0/500</small></div></div><div class="observations-actions"><button type="button" class="button ghost" data-observations-close>Cancelar</button><button type="submit" class="button">Guardar observación</button></div></form></dialog>
+    <dialog id="manager-password-dialog"><form id="manager-password-form" class="modal"><button class="close" type="button" data-manager-password-close>×</button><h1>Cambiar contraseña</h1><p>Define una nueva contraseña personal de al menos 8 caracteres.</p><label>Nueva contraseña<input name="password" type="password" minlength="8" required></label><button type="submit" class="button">Guardar contraseña</button></form></dialog>
 
     <script
         type="module"

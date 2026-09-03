@@ -667,6 +667,10 @@ $("#manager-role").textContent = profile?.role === "executive" ? "Gerencia · So
 $("#manager-greeting").textContent = `Hola, ${(profile?.full_name || "Gerencia").split(" ")[0]}`;
 $("#dashboard-logout").addEventListener("click", () => signOut(supabase));
 $("#manager-logout").addEventListener("click", () => signOut(supabase));
+$("#manager-settings-toggle").addEventListener("click", () => $("#manager-settings-menu").classList.toggle("hidden"));
+$("#manager-change-password").addEventListener("click", () => $("#manager-password-dialog").showModal());
+document.querySelectorAll("[data-manager-password-close]").forEach((button) => button.addEventListener("click", () => $("#manager-password-dialog").close()));
+$("#manager-password-form").addEventListener("submit", async (event) => { event.preventDefault(); const password = new FormData(event.currentTarget).get("password"); try { const { error } = await supabase.auth.updateUser({ password }); if (error) throw error; $("#manager-password-dialog").close(); alert("Contraseña actualizada correctamente."); } catch (error) { alert(error.message); } });
 document.querySelectorAll("[data-observations-close]").forEach((button) => button.addEventListener("click", () => $("#observations-dialog").close()));
 $("#observation-message").addEventListener("input", (event) => { $("#observation-count").textContent = `${event.target.value.length}/500`; });
 $("#observations-form").addEventListener("submit", async (event) => { event.preventDefault(); const message = $("#observation-message").value.trim(); if (!message) return; try { await managementApi(`/api/projects/${event.currentTarget.dataset.projectId}/observations`, { method: "POST", body: JSON.stringify({ message }) }); $("#observations-dialog").close(); await load(); } catch (error) { alert(error.message); } });
