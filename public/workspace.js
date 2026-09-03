@@ -3,7 +3,7 @@ import { client, escapeHtml, formatDate, profileFor, progress, signOut } from '.
 const supabase = await client();
 const { session, profile } = await profileFor(supabase);
 const $ = (selector) => document.querySelector(selector);
-const state = { areas: [], projects: [] };
+const state = { areas: [], projects: [], observationCounts: {} };
 
 if (!session) location.href = '/login.html';
 if (profile?.role === 'admin') location.href = '/admin.html';
@@ -16,10 +16,11 @@ function isCompleted(project) { return project.status === 'completed' || progres
 async function api(url, options = {}) { const response = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}`, ...(options.headers || {}) } }); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.error || 'No se pudo completar la acción.'); return data; }
 
 async function load() {
-  const [areasResult, projectsResult] = await Promise.all([supabase.from('areas').select('*').order('name'), supabase.from('projects').select('*, project_steps(*)').eq('owner_id', profile.id).order('created_at', { ascending: false })]);
-  if (areasResult.error || projectsResult.error) return alert(areasResult.error?.message || projectsResult.error.message);
+  const [areasResult, projectsResult, observationsResult] = await Promise.all([supabase.from('areas').select('*').order('name'), supabase.from('projects').select('*, project_steps(*)').eq('owner_id', profile.id).order('created_at', { ascending: false }), supabase.from('project_observations').select('project_id')]);
+  if (areasResult.error || projectsResult.error || observationsResult.error) return alert(areasResult.error?.message || projectsResult.error?.message || observationsResult.error.message);
   state.areas = areasResult.data || [];
   state.projects = (projectsResult.data || []).map((project) => ({ ...project, project_steps: (project.project_steps || []).sort((first, second) => Number(first.position) - Number(second.position)) }));
+  state.observationCounts = (observationsResult.data || []).reduce((counts, observation) => ({ ...counts, [observation.project_id]: (counts[observation.project_id] || 0) + 1 }), {});
   $('#user-name').textContent = profile.full_name;
   $('#user-initials').textContent = initials(profile.full_name);
   $('#member-name').textContent = profile.full_name;
@@ -86,7 +87,7 @@ function render() {
     });
     const actions = card.querySelector('.card-actions');
     const readyToComplete = value.total > 0 && value.done === value.total && project.status !== 'completed';
-    actions.innerHTML = `<button class="text-button observation-button">Observaciones</button><button class="text-button state-button">${project.status === 'standby' ? 'Reanudar proyecto' : 'Poner en espera'}</button><button class="text-button insert-button">＋ Agregar paso</button><button class="text-button complete-button" ${readyToComplete ? '' : 'disabled'}>${project.status === 'completed' ? 'Proyecto finalizado' : 'Marcar como completado'}</button><button class="text-button delete-button">Eliminar proyecto</button>`;
+    actions.innerHTML = `<button class="text-button observation-button">💬 Observaciones (${state.observationCounts[project.id] || 0})</button><button class="text-button state-button">${project.status === 'standby' ? 'Reanudar proyecto' : 'Poner en espera'}</button><button class="text-button insert-button">＋ Agregar paso</button><button class="text-button complete-button" ${readyToComplete ? '' : 'disabled'}>${project.status === 'completed' ? 'Proyecto finalizado' : 'Marcar como completado'}</button><button class="text-button delete-button">Eliminar proyecto</button>`;
     actions.querySelector('.observation-button').addEventListener('click', () => viewObservations(project));
     actions.querySelector('.state-button').addEventListener('click', () => project.status === 'standby' ? resumeProject(project) : openStandby(project));
     actions.querySelector('.insert-button').addEventListener('click', () => insertStep(project));
@@ -102,11 +103,12 @@ async function insertStep(project, nextPosition) { const title = prompt('Nombre 
 function openStandby(project) { const form = $('#standby-form'); form.reset(); form.querySelector('[name="projectId"]').value = project.id; $('#standby-dialog').showModal(); }
 async function resumeProject(project) { try { await api(`/api/projects/${project.id}/resume`, { method: 'POST' }); await load(); } catch (error) { alert(error.message); } }
 async function completeProject(project) { if (project.status === 'completed') return; if (!confirm(`¿Marcar “${project.title}” como completado?`)) return; try { await api(`/api/projects/${project.id}/complete`, { method: 'POST' }); await load(); } catch (error) { alert(error.message); } }
-async function viewObservations(project) { try { const result = await api(`/api/projects/${project.id}/observations`); const content = result.observations.map((item) => `${item.profiles?.full_name || 'Gerencia'} · ${new Date(item.created_at).toLocaleString('es-PE')}\n${item.message}`).join('\n\n') || 'No hay observaciones de Gerencia.'; alert(`Observaciones · ${project.title}\n\n${content}`); } catch (error) { alert(error.message); } }
+async function viewObservations(project) { try { const result = await api(`/api/projects/${project.id}/observations`); $('#member-observations-project').textContent = project.title; $('#member-observations-history').innerHTML = result.observations.length ? result.observations.map((item) => `<article><div><b>${escapeHtml(item.profiles?.full_name || 'Gerencia')}</b><time>${new Date(item.created_at).toLocaleString('es-PE')}</time></div><p>${escapeHtml(item.message)}</p></article>`).join('') : '<p class="muted">No hay observaciones de Gerencia o Jefatura.</p>'; $('#member-observations-dialog').showModal(); } catch (error) { alert(error.message); } }
 async function deleteProject(project) { if (!confirm(`¿Eliminar “${project.title}”? Esta acción no se puede deshacer.`)) return; try { await api(`/api/projects/${project.id}`, { method: 'DELETE' }); await load(); } catch (error) { alert(error.message); } }
 
 $('#logout').addEventListener('click', () => signOut(supabase));
 document.querySelectorAll('[data-close]').forEach((button) => button.addEventListener('click', () => button.closest('dialog').close()));
+document.querySelectorAll('[data-member-observations-close]').forEach((button) => button.addEventListener('click', () => $('#member-observations-dialog').close()));
 $('#change-password').addEventListener('click', () => $('#password-dialog').showModal());
 $('#password-form').addEventListener('submit', async (event) => { event.preventDefault(); const form = event.currentTarget; const password = new FormData(form).get('password'); try { await api('/api/account/password', { method: 'PATCH', body: JSON.stringify({ password }) }); $('#password-dialog').close(); form.reset(); profile.must_change_password = false; alert('Contraseña actualizada correctamente.'); } catch (error) { alert(error.message); } });
 $('#new-project').addEventListener('click', () => $('#project-dialog').showModal());
