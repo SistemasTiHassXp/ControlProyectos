@@ -119,6 +119,27 @@ form.addEventListener(
         submitButton.textContent =
             'Validando...';
 
+        const controller =
+            new AbortController();
+
+        const slowRequestTimer =
+            setTimeout(
+                () => {
+                    submitButton.textContent =
+                        'Activando servidor...';
+
+                    errorBox.textContent =
+                        'El servidor gratuito de Render se está activando. La primera solicitud puede tardar hasta 60 segundos.';
+                },
+                12000
+            );
+
+        const requestTimeout =
+            setTimeout(
+                () => controller.abort(),
+                75000
+            );
+
         try {
             const formData =
                 new FormData(event.currentTarget);
@@ -132,6 +153,8 @@ form.addEventListener(
                         'Content-Type':
                             'application/json'
                     },
+
+                    signal: controller.signal,
 
                     body: JSON.stringify({
                         username:
@@ -183,9 +206,15 @@ form.addEventListener(
             );
 
             errorBox.textContent =
-                error.message ||
-                'No se pudo conectar con el servidor. Intenta nuevamente.';
+                error.name === 'AbortError'
+                    ? 'El servidor no respondió después de 75 segundos. Revisa las variables de Render y vuelve a intentarlo.'
+                    : error.message ||
+                      'No se pudo conectar con el servidor. Intenta nuevamente.';
         } finally {
+            clearTimeout(slowRequestTimer);
+
+            clearTimeout(requestTimeout);
+
             submitButton.disabled = false;
 
             submitButton.textContent =
