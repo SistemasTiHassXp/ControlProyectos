@@ -71,6 +71,22 @@ function createPublicClient() {
   );
 }
 
+function withTimeout(operation, message, timeout = 12000) {
+  let timeoutId;
+
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(
+      () => reject(new Error(message)),
+      timeout
+    );
+  });
+
+  return Promise.race([
+    operation,
+    timeoutPromise
+  ]).finally(() => clearTimeout(timeoutId));
+}
+
 async function authenticate(
   request,
   response
@@ -183,51 +199,92 @@ app.post(
         });
     }
 
-    const { data: account } =
-      await adminClient
-        .from("profiles")
-        .select("email")
-        .eq(
-          "username",
-          username
-        )
-        .maybeSingle();
-
-    if (!account) {
-      return response
-        .status(401)
-        .json({
-          error:
-            "Usuario o contraseña incorrectos."
-        });
-    }
-
-    const publicClient =
-      createPublicClient();
-
-    const { data, error } =
-      await publicClient.auth.signInWithPassword(
-        {
-          email: account.email,
-          password
-        }
+    try {
+      const {
+        data: account,
+        error: accountError
+      } = await withTimeout(
+        adminClient
+          .from("profiles")
+          .select("email")
+          .eq(
+            "username",
+            username
+          )
+          .maybeSingle(),
+        "Supabase tardó demasiado en responder."
       );
 
-    if (
-      error ||
-      !data.session
-    ) {
-      return response
-        .status(401)
+      if (accountError) {
+        console.error(
+          "No se pudo consultar el perfil:",
+          accountError.message
+        );
+
+        return response
+          .status(503)
+          .json({
+            error:
+              "No se pudo verificar la cuenta. Revisa la conexión con Supabase."
+          });
+      }
+
+      if (!account) {
+        return response
+          .status(401)
+          .json({
+            error:
+              "Usuario o contraseña incorrectos."
+          });
+      }
+
+      const publicClient =
+        createPublicClient();
+
+      const { data, error } =
+        await withTimeout(
+          publicClient.auth.signInWithPassword(
+            {
+              email: account.email,
+              password
+            }
+          ),
+          "Supabase tardó demasiado en validar la contraseña."
+        );
+
+      if (
+        error ||
+        !data.session
+      ) {
+        return response
+          .status(401)
+          .json({
+            error:
+              "Usuario o contraseña incorrectos."
+          });
+      }
+
+      response.json({
+        session: data.session
+      });
+    } catch (error) {
+      console.error(
+        "Error durante el inicio de sesión:",
+        error
+      );
+
+      response
+        .status(
+          error.message.startsWith("Supabase tardó")
+            ? 504
+            : 500
+        )
         .json({
-          error:
-            "Usuario o contraseña incorrectos."
+          error: error.message.startsWith("Supabase tardó")
+            ? error.message
+            : "No se pudo iniciar sesión. Intenta nuevamente."
         });
     }
-
-    response.json({
-      session: data.session
-    });
   }
 );
 async function requireAdministrator(
