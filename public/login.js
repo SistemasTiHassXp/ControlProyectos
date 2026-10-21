@@ -1,12 +1,9 @@
 ﻿import {
     client,
-    profileFor,
-    attachApiAuth
+    profileFor
 } from './common.js';
 
 const supabase = await client();
-
-await attachApiAuth(supabase);
 
 const $ = (selector) =>
     document.querySelector(selector);
