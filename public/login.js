@@ -14,7 +14,12 @@ const $ = (selector) =>
 const form = $('#login-form');
 
 const errorBox = $('#form-error');
-const destination = (profile) => profile.role === 'admin' ? '/admin.html' : profile.role === 'manager' ? '/index.html' : '/workspace.html';
+const destination = (profile) =>
+    profile.role === 'admin'
+        ? '/admin.html'
+        : ['manager', 'executive'].includes(profile.role)
+            ? '/index.html'
+            : '/workspace.html';
 
 async function createSessionControls() {
     const {
@@ -104,64 +109,88 @@ form.addEventListener(
 
         errorBox.textContent = '';
 
-        const formData =
-            new FormData(event.currentTarget);
+        const submitButton =
+            form.querySelector(
+                'button[type="submit"]'
+            );
 
-        const response = await fetch(
-            '/api/auth/login',
-            {
-                method: 'POST',
+        submitButton.disabled = true;
 
-                headers: {
-                    'Content-Type':
-                        'application/json'
-                },
+        submitButton.textContent =
+            'Validando...';
 
-                body: JSON.stringify({
-                    username:
-                        formData.get(
-                            'username'
-                        ),
+        try {
+            const formData =
+                new FormData(event.currentTarget);
 
-                    password:
-                        formData.get(
-                            'password'
-                        )
-                })
+            const response = await fetch(
+                '/api/auth/login',
+                {
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type':
+                            'application/json'
+                    },
+
+                    body: JSON.stringify({
+                        username:
+                            formData.get(
+                                'username'
+                            ),
+
+                        password:
+                            formData.get(
+                                'password'
+                            )
+                    })
+                }
+            );
+
+            const data =
+                await response.json().catch(
+                    () => ({})
+                );
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error ||
+                    'Usuario o contraseña incorrectos.'
+                );
             }
-        );
 
-        const data =
-            await response.json();
+            const { error } =
+                await supabase.auth.setSession({
+                    access_token:
+                        data.session.access_token,
 
-        if (!response.ok) {
+                    refresh_token:
+                        data.session.refresh_token
+                });
+
+            if (error) {
+                throw error;
+            }
+
+            const { profile } =
+                await profileFor(supabase);
+
+            location.href = destination(profile);
+        } catch (error) {
+            console.error(
+                'Error al iniciar sesión:',
+                error
+            );
+
             errorBox.textContent =
-                data.error ||
-                'Usuario o contraseña incorrectos.';
+                error.message ||
+                'No se pudo conectar con el servidor. Intenta nuevamente.';
+        } finally {
+            submitButton.disabled = false;
 
-            return;
+            submitButton.textContent =
+                'Ingresar';
         }
-
-        const { error } =
-            await supabase.auth.setSession({
-                access_token:
-                    data.session.access_token,
-
-                refresh_token:
-                    data.session.refresh_token
-            });
-
-        if (error) {
-            errorBox.textContent =
-                'No se pudo iniciar sesión.';
-
-            return;
-        }
-
-        const { profile } =
-            await profileFor(supabase);
-
-        location.href = destination(profile);
     }
 );
 
