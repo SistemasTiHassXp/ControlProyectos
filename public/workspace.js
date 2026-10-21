@@ -130,7 +130,7 @@ $('#password-form').addEventListener('submit', async (event) => { event.preventD
 $('#new-project').addEventListener('click', () => $('#project-dialog').showModal());
 document.querySelectorAll('[data-member-view]').forEach((button) => button.addEventListener('click', () => { const view = button.dataset.memberView; document.querySelectorAll('[data-member-view]').forEach((item) => item.classList.toggle('active', item === button)); document.body.className = `workspace-page member-page member-view-${view}`; }));
 document.querySelectorAll('[data-sidebar-toggle]').forEach((button) => button.addEventListener('click', () => { const open = document.body.classList.toggle('sidebar-open'); document.querySelectorAll('[data-sidebar-toggle]').forEach((item) => item.setAttribute('aria-expanded', String(open))); }));
-document.querySelector('[data-sidebar-close]')?.addEventListener('click', () => { document.body.classList.remove('sidebar-open'); document.querySelectorAll('[data-sidebar-toggle]').forEach((item) => item.setAttribute('aria-expanded', 'false')); });
+document.querySelectorAll('[data-sidebar-close]').forEach((button) => button.addEventListener('click', () => { document.body.classList.remove('sidebar-open'); document.querySelectorAll('[data-sidebar-toggle]').forEach((item) => item.setAttribute('aria-expanded', 'false')); }));
 $('#goto-projects').addEventListener('click', () => document.querySelector('[data-member-view="projects"]').click());
 $('#goto-reports').addEventListener('click', () => document.querySelector('[data-member-view="reports"]').click());
 $('#add-initial-step').addEventListener('click', () => $('#initial-steps').insertAdjacentHTML('beforeend', '<input placeholder="Paso adicional">'));

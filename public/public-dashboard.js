@@ -660,9 +660,10 @@ $("#owner-filter").addEventListener("change", (event) => { state.activeOwner = e
 $("#directory-status").addEventListener("change", (event) => { state.activeStatus = event.target.value; render(); });
 document.querySelectorAll("[data-manager-view]").forEach((button) => button.addEventListener("click", () => { const view = button.dataset.managerView; document.querySelectorAll("[data-manager-view]").forEach((item) => item.classList.toggle("active", item === button)); document.body.className = `protected-dashboard manager-page authorized-dashboard view-${view}`; }));
 document.querySelectorAll("[data-sidebar-toggle]").forEach((button) => button.addEventListener("click", () => { const open = document.body.classList.toggle("sidebar-open"); document.querySelectorAll("[data-sidebar-toggle]").forEach((item) => item.setAttribute("aria-expanded", String(open))); }));
-document.querySelector("[data-sidebar-close]")?.addEventListener("click", () => { document.body.classList.remove("sidebar-open"); document.querySelectorAll("[data-sidebar-toggle]").forEach((item) => item.setAttribute("aria-expanded", "false")); });
+document.querySelectorAll("[data-sidebar-close]").forEach((button) => button.addEventListener("click", () => { document.body.classList.remove("sidebar-open"); document.querySelectorAll("[data-sidebar-toggle]").forEach((item) => item.setAttribute("aria-expanded", "false")); }));
 
-$("#dashboard-user").textContent = `👤 ${profile?.full_name || "Gerencia"}`;
+$("#dashboard-user").textContent = profile?.full_name || "Gerencia";
+$("#header-initials").textContent = (profile?.full_name || "Gerencia").split(" ").map((item) => item[0]).slice(0, 2).join("").toUpperCase();
 $("#manager-name").textContent = profile?.full_name || "Gerencia";
 $("#manager-initials").textContent = (profile?.full_name || "Gerencia").split(" ").map((item) => item[0]).slice(0, 2).join("").toUpperCase();
 $("#manager-role").textContent = profile?.role === "executive" ? "Gerencia · Solo lectura" : "Jefatura · Solo lectura";

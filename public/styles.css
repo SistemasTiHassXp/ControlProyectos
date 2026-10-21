@@ -558,7 +558,7 @@ dialog::backdrop {
 
 /* Navegación móvil: el panel lateral se abre solo desde el botón hamburguesa. */
 .mobile-menu-toggle,.sidebar-backdrop { display:none; }
-@media (max-width:850px) {
+@media (max-width:1100px) {
   .mobile-menu-toggle { position:relative; z-index:31; display:grid; width:40px; height:40px; flex:0 0 40px; place-items:center; border:1px solid #52637d; border-radius:8px; color:white; background:#1d3150; font-size:22px; line-height:1; }
   .sidebar-backdrop { position:fixed; z-index:20; inset:0; border:0; background:#07111fcc; opacity:0; pointer-events:none; transition:opacity .22s ease; }
   .sidebar-open .sidebar-backdrop { display:block; opacity:1; pointer-events:auto; }
@@ -569,4 +569,20 @@ dialog::backdrop {
   .manager-content .brand,.member-page .brand,.admin-header .header-actions { min-width:0; }.brand-cincinnati img { max-width:64px; height:34px; }.brand-cincinnati strong { font-size:13px; }.brand-cincinnati small { font-size:8px; }
   .manager-home,.member-home { padding:22px 16px; }.manager-home-grid,.area-report-grid { grid-template-columns:1fr; }.manager-home h1,.member-home h1 { font-size:27px; }
   .manager-bottom,.member-bottom { position:absolute; right:12px; bottom:22px; left:12px; }.admin-sidebar .brand { margin-bottom:18px; }.admin-user-chip { display:flex; }
+}
+
+/* Cabecera y cierre del menú móvil. */
+.drawer-close { display:none; }
+.drawer-brand { display:none; }
+.mobile-header-user { display:flex; align-items:center; gap:8px; color:white; font-size:13px; font-weight:700; }.mobile-header-user b { display:grid; width:30px; height:30px; place-items:center; border-radius:50%; background:#7453e6; font-size:11px; }.mobile-header-user i { color:#b9c6dc; font-style:normal; }
+@media (max-width:1100px) {
+  .mobile-menu-toggle { z-index:1; margin-right:2px; box-shadow:0 4px 12px #06152e33; }
+  .drawer-close { position:absolute; top:14px; right:14px; z-index:2; display:grid; width:38px; height:38px; place-items:center; border:1px solid #52637d; border-radius:9px; color:#fff; background:#203451; font-size:27px; line-height:1; }
+  .manager-profile,.member-profile { margin-top:30px; }
+  .admin-sidebar .brand { margin-top:30px; }
+  .manager-sidebar { padding:24px; background:radial-gradient(circle at 20% 8%,#233c71,#0c1932 50%,#08152b); }
+  .manager-sidebar .manager-profile { display:none; }
+  .drawer-brand { display:flex; align-items:center; gap:14px; min-height:92px; padding-right:34px; margin:0 0 26px; color:white; }.drawer-brand img { width:96px; height:58px; object-fit:contain; padding:7px; border-radius:11px; background:white; }.drawer-brand span { display:grid; gap:5px; }.drawer-brand strong { font:800 19px Manrope,sans-serif; }.drawer-brand small { color:#3bb0ff; font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+  .manager-sidebar .manager-nav { min-height:58px; margin:5px 0; padding:15px 16px; border-radius:14px; color:#eaf1fd; font-size:16px; }.manager-sidebar .manager-nav:first-of-type { margin-top:0; }.manager-sidebar .manager-nav.active { color:white; background:linear-gradient(100deg,#286ff4,#263b79); box-shadow:0 8px 18px #07163355; }.manager-sidebar .manager-bottom { right:24px; bottom:28px; left:24px; padding-top:20px; border-top:1px solid #40516c; }.manager-sidebar .manager-bottom .manager-nav { font-size:16px; }.manager-sidebar .manager-logout { color:#ff5972; font-size:16px; }
+  .mobile-header-user { display:flex; align-items:center; gap:9px; margin-left:auto; color:white; font-size:13px; font-weight:700; white-space:nowrap; }.mobile-header-user b { display:grid; width:34px; height:34px; place-items:center; border-radius:50%; background:linear-gradient(135deg,#805cf4,#ac63fb); font-size:12px; }.mobile-header-user i { font-style:normal; color:#b9c6dc; font-size:17px; }
 }
