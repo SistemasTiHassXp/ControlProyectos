@@ -555,3 +555,18 @@ dialog::backdrop {
 .cnt-logo-cincinnati span { font-size:25px; text-align:center; }
 .redundant-member-metrics { display:none; }
 @media (max-width:850px) { .member-page { padding-left:0; }.member-sidebar { position:static; width:auto; display:flex; gap:8px; align-items:center; padding:12px; }.member-profile { margin:0 auto 0 0; }.member-nav { width:auto; margin:0; padding:9px; font-size:11px; }.member-page .workspace-topbar { padding:10px 16px; }.member-home { padding:22px 16px; }.member-shortcuts { grid-template-columns:1fr; } }
+
+/* Navegación móvil: el panel lateral se abre solo desde el botón hamburguesa. */
+.mobile-menu-toggle,.sidebar-backdrop { display:none; }
+@media (max-width:850px) {
+  .mobile-menu-toggle { position:relative; z-index:31; display:grid; width:40px; height:40px; flex:0 0 40px; place-items:center; border:1px solid #52637d; border-radius:8px; color:white; background:#1d3150; font-size:22px; line-height:1; }
+  .sidebar-backdrop { position:fixed; z-index:20; inset:0; border:0; background:#07111fcc; opacity:0; pointer-events:none; transition:opacity .22s ease; }
+  .sidebar-open .sidebar-backdrop { display:block; opacity:1; pointer-events:auto; }
+  .manager-sidebar,.member-sidebar,.admin-sidebar { position:fixed; z-index:30; top:0; bottom:0; left:0; width:min(286px,86vw); min-height:100vh; display:flex; flex-direction:column; padding:24px 12px; transform:translateX(-105%); transition:transform .24s ease; box-shadow:10px 0 30px #02061766; }
+  .sidebar-open .manager-sidebar,.sidebar-open .member-sidebar,.sidebar-open .admin-sidebar { transform:translateX(0); }
+  .manager-content { margin-left:0; }.member-page { padding-left:0; }.admin-page { grid-template-columns:1fr; }.admin-content { grid-column:1; }
+  .manager-content .topbar,.member-page .workspace-topbar { min-height:64px; height:auto; padding:10px 16px; gap:12px; }.admin-header { min-height:64px; height:auto; padding:10px 16px; }
+  .manager-content .brand,.member-page .brand,.admin-header .header-actions { min-width:0; }.brand-cincinnati img { max-width:64px; height:34px; }.brand-cincinnati strong { font-size:13px; }.brand-cincinnati small { font-size:8px; }
+  .manager-home,.member-home { padding:22px 16px; }.manager-home-grid,.area-report-grid { grid-template-columns:1fr; }.manager-home h1,.member-home h1 { font-size:27px; }
+  .manager-bottom,.member-bottom { position:absolute; right:12px; bottom:22px; left:12px; }.admin-sidebar .brand { margin-bottom:18px; }.admin-user-chip { display:flex; }
+}
